@@ -5,6 +5,7 @@
 #define stepMotor
 
 #include <Arduino.h>
+#include "timeQueue.hpp"
 #define stepperMotor_n 6
 
 #define rotationBaseLeft 2
@@ -19,63 +20,11 @@
 #define moveBaseBack 5
 #define moveBaseRatio ((double)350.0)
 
-
-#define timeQueueNum 20
-#define timeUnitBeingDelay -1
-#define timeUnitDelay 0
-#define timeUnitMove 1
-
 //                          l_L, l_R, r_L, r_R, h_1, h_2
 //rotate 小齿轮12， 大齿轮64
 const int constPul[] =     {28,  13,  33,  12,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  45};
 const int intervalTime[] = {250, 250, 250, 250, 150, 150};
-
-struct _timeUnit{
-    int id;
-    double index;
-    _timeUnit() = default;
-    _timeUnit(int id, double index){
-        this->id = id;
-        this->index = index;
-    }
-};
-
-struct _timeQueue{
-    _timeUnit timeUnit[timeQueueNum];
-    int p_head, p_end;
-    _timeQueue(){
-        this->p_head = this->p_end = 0;
-    }
-
-    void move_next(int* p){
-        if ((*p) == timeQueueNum)
-            (*p) = 0;
-        else
-            (*p)++;
-    }
-
-    bool empty(){
-        return this->p_head == this->p_end;
-    }
-
-    void push(_timeUnit tmpTimeUnit){
-        this->timeUnit[this->p_end] = tmpTimeUnit;
-        move_next(&this->p_end);
-    }
-
-    void pop(){
-        move_next(&this->p_head);
-    }
-
-    _timeUnit front(){
-        return this->timeUnit[this->p_head];
-    }
-
-    _timeUnit* frontPoint(){
-        return this->timeUnit + this->p_head;
-    }
-};
 
 struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器
@@ -127,24 +76,31 @@ struct _stepperMotor{
         return false;
     }
 
-    void loop_run(){
+    void loopRun(){
         if (this->timeQueue.empty())
             return;
-//        Serial.println(this->timeQueue.front().id);
+
+        if (signal >= this->timeQueue.frontPoint()->startSignal)
         switch(this->timeQueue.front().id){
             case timeUnitBeingDelay:
-                if (global_t >= this->timeQueue.front().index)
+                if (millis() >= this->timeQueue.front().index) {
+                    signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
                     this->timeQueue.pop();
+                }
                 break;
 
             case timeUnitDelay:
-                this->timeQueue.frontPoint()->id = -1;
-                this->timeQueue.frontPoint()->index = global_t + (*this->timeQueue.frontPoint()).index;
+                this->timeQueue.frontPoint()->id = timeUnitBeingDelay;
+                this->timeQueue.frontPoint()->index = millis() + (*this->timeQueue.frontPoint()).index;
                 break;
 
-            case timeUnitMove:
-                if (this->rotate(this->timeQueue.frontPoint()->index))
+            case timeUnitStepperMotorMove:
+                if (this->rotate(this->timeQueue.frontPoint()->index)) {
+                    signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
                     this->timeQueue.pop();
+//                    Serial.println("Update to ");
+//                    Serial.println(signal);
+                }
                 break;
 
         }
@@ -159,31 +115,30 @@ struct _stepperMotor{
 //        stepperMotor[3].rotate(angle * rotationBaseRatio);
 //}
 
-void delayRotationBase(int rotateNum, double delay){//delay单位:秒 rotate_num: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
-    stepperMotor[rotateNum].timeQueue.push(_timeUnit(timeUnitDelay, delay));
+void delayRotationBase(int rotateNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 rotate_num: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
+    stepperMotor[rotateNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void rotateRotationBaseTo(int rotateNum, double angle){//angle单位:度 rotateNum: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
-    stepperMotor[rotateNum].timeQueue.push(_timeUnit(timeUnitMove, angle * rotationBaseRatio));
+void rotateRotationBaseTo(int rotateNum, double angle, int startSignal = -1, int finishSignal = -1){//angle单位:度 rotateNum: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
+    stepperMotor[rotateNum].timeQueue.push(timeUnitStepperMotorMove, angle * rotationBaseRatio, startSignal, finishSignal);
 }
 
-void delayLiftBase(int liftNum, double delay){//delay单位:秒 liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
-    stepperMotor[liftNum].timeQueue.push(_timeUnit(timeUnitDelay, delay));
+void delayLiftBase(int liftNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
+    stepperMotor[liftNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void liftBaseTo(int liftNum, double height){//height单位:厘米, liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
-    Serial.println(height * liftBaseRatio);
-    stepperMotor[liftNum].timeQueue.push(_timeUnit(timeUnitMove, height * liftBaseRatio));
+void liftBaseTo(int liftNum, double height, int startSignal = -1, int finishSignal = -1){//height单位:厘米, liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
+    stepperMotor[liftNum].timeQueue.push(timeUnitStepperMotorMove, height * liftBaseRatio, startSignal, finishSignal);
 }
 
-void delayMoveBase(double delay){//delay单位:秒
-    stepperMotor[moveBaseFront].timeQueue.push(_timeUnit(timeUnitDelay, delay));
-    stepperMotor[moveBaseBack].timeQueue.push(_timeUnit(timeUnitDelay, delay));
+void delayMoveBase(double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
+    stepperMotor[moveBaseFront].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+    stepperMotor[moveBaseBack].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void moveBaseTo(double position){//position单位:厘米
-    stepperMotor[moveBaseFront].timeQueue.push(_timeUnit(timeUnitMove, position * moveBaseRatio));
-    stepperMotor[moveBaseBack].timeQueue.push(_timeUnit(timeUnitMove, position * moveBaseRatio));
+void moveBaseTo(double position, int startSignal = -1, int finishSignal = -1){//position单位:厘米
+    stepperMotor[moveBaseFront].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
+    stepperMotor[moveBaseBack].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
 }
 
 #endif
