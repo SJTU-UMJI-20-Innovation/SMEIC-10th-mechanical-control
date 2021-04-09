@@ -7,6 +7,7 @@
 
 #define timeUnitReachArm 1
 #define timeUnitRotateServoTwo 2
+#define timeUnitRotateServoOne 3
 
 int signal = 0;
 int lastAppliedSignal = 0;

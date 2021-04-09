@@ -22,17 +22,21 @@
 #define servoMoveMills 4
 //                                                        L1,    L2,    L3,    L4,    L5,      R1,    R2,    R3,    R4,    R5
 const int constPin[arm_n][eachArmServo_n] =             {{9,     8,     7,     10,    11},    {6,     5,     4,     2,     3}};
-const int initialPos[arm_n][eachArmServo_n] =           {{90,    90,    95,    90,    90},    {90,    90,    85,    90,    90}};
+const int initialPos[arm_n][eachArmServo_n] =           {{90,    88,    90,    90,    90},    {90,    90,    90,    90,    90}};
 const double armReachIndex[arm_n][eachArmServo_n] =     {{0.0,   0.0,   1.0,   2.0,   -1.0},  {0.0,   0.0,   -1.0,  2.0,   -1.0}};
-const double armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   5.0,   -99.0, 180.0}, {0.0,   0.0,   175.0, -99.0, 180.0}};
+const double armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   2.0,   -90.0, 180.0}, {0.0,   0.0,   175.0, -90.0, 180.0}};
 
 const double armSpeed  = 0.0625;
 const double servoTwoSpeed = 1.0;
+const double grabSpeed = 0.1;
+
+const double releasePosition = 80.0;
+const double grabPosition = 90.0;
 
 struct _arm{
     int id;
     unsigned long nextMoveMills;
-    double currentArmPosition, currentServoTwoPosition;
+    double currentArmPosition, currentServoTwoPosition, currentGrabPosition;
     _timeQueue timeQueue;
     _arm() = default;
     Servo servo[eachArmServo_n];
@@ -41,6 +45,7 @@ struct _arm{
             servo[i].write(initialPos[this->id][i]);
         currentArmPosition = 90.0;
         currentServoTwoPosition = 90.0;
+        currentGrabPosition = 90.0;
         nextMoveMills = 0;
     }
 
@@ -71,7 +76,7 @@ struct _arm{
     }
 
     bool rotateServoTwo(double toServoTwoPosition){
-        if (abs(toServoTwoPosition - this->currentServoTwoPosition) < servoTwoSpeed + 0.05)
+        if (abs(toServoTwoPosition - this->currentServoTwoPosition) < servoTwoSpeed + 0.02)
             return true;
         if (millis() < this->nextMoveMills)
             return false;
@@ -82,6 +87,30 @@ struct _arm{
         else
             this->currentServoTwoPosition += servoTwoSpeed;
         servo[1].write(this->currentServoTwoPosition);
+    }
+
+    bool rotateServoOne(double toServoOnePosition){
+        toServoOnePosition = min((double)120.0, toServoOnePosition);
+        toServoOnePosition = max((double)85.0, toServoOnePosition);
+
+        if (abs(toServoOnePosition - this->currentGrabPosition) < grabSpeed + 0.02){
+            Serial.println("rotateServoOne->true");
+            Serial.println(toServoOnePosition);
+            Serial.println(this->currentGrabPosition);
+            Serial.println("finish");
+            return true;
+        }
+
+        if (millis() < this->nextMoveMills)
+            return false;
+
+        this->nextMoveMills = millis() + servoMoveMills;
+        if (this->currentGrabPosition > toServoOnePosition)
+            this->currentGrabPosition -= grabSpeed;
+        else
+            this->currentGrabPosition += grabSpeed;
+        servo[0].write(this->currentGrabPosition);
+        return false;
     }
 
     void loopRun(){
@@ -114,6 +143,13 @@ struct _arm{
                         this->timeQueue.pop();
                     }
                     break;
+
+                case timeUnitRotateServoOne:
+                    if (this->rotateServoOne(this->timeQueue.frontPoint()->index)){
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
         }
     }
 }arm[arm_n];
@@ -122,13 +158,18 @@ void moveArm(int armNum, double position, int startSignal = -1, int finishSignal
     arm[armNum].timeQueue.push(timeUnitReachArm, position, startSignal, finishSignal);
 }
 
+void delayArm(int armNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
+    arm[armNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+}
+
 void rotateServoTwo(int armNum, double position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
     arm[armNum].timeQueue.push(timeUnitRotateServoTwo, position, startSignal, finishSignal);
 }
 
-void delayArm(int armNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
-    arm[armNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+void rotateServoOne(int armNum, double position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
+    arm[armNum].timeQueue.push(timeUnitRotateServoOne, position, startSignal, finishSignal);
 }
+
 
 #endif
 

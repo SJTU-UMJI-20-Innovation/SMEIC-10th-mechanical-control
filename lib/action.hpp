@@ -4,14 +4,23 @@
 #include "servo.hpp"
 #include "stepperMotor.hpp"
 
+
 void setBack(){
-    moveArm(leftArm, 90.0);
-    moveArm(rightArm, 90.0);
-    moveBaseTo(0.0);
-    liftBaseTo(liftBaseLeft, 0.0);
-    liftBaseTo(liftBaseRight, 0.0);
-    rotateRotationBaseTo(rotationBaseLeft, 0.0);
-    rotateRotationBaseTo(rotationBaseRight, 0.0);
+    moveArm(leftArm, 90.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    moveArm(rightArm, 90.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    moveBaseTo(0.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    rotateRotationBaseTo(rotationBaseLeft, 0.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    rotateRotationBaseTo(rotationBaseRight, 0.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    liftBaseTo(liftBaseLeft, 0.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+    liftBaseTo(liftBaseRight, 0.0, lastAppliedSignal, lastAppliedSignal + 1);
+    lastAppliedSignal += 1;
+
 }
 
 void rightArmGrab(){
