@@ -1,0 +1,112 @@
+更新于2021/4/13/17:27
+
+常量:
+#define armLeft 0
+#define armRight 1
+
+规范:
+()内表示非必须参数, 有关startSignal与endSignal详细信息还是来问下魏奕晨吧
+[]内表示参数, 普遍的有:
+    arduino代码中有个全局变量signal, lastAppliedSignal
+    startSignal -> 该条指令只会在signal > startSignal时才开始执行
+    endSignal -> 该条指令在完成后，会将signal变为max(signal, endSignal)
+
+每一部分都以#结尾以区分
+
+缩写表:
+bf -> buffer
+sg -> signal
+dl -> delay
+rt -> rotation/rotate
+bs -> base
+lf -> lift
+mv -> move
+am -> arm
+sv -> servo
+cg -> change
+ms -> mass
+
+特殊:
+    bfOn#
+        接下来输入的所有指令, 直到BfOff指令之前, 都会被存储在Arduino中缓冲区内, 读到BfOff才统一开始解析(缓冲区最多20条指令)
+
+    bfOff#
+        Arduino立刻执行缓冲区内所有制令
+
+    cgSg#[signalNumber]#:
+        signalNumber: 将signal变为signalNumber
+        例: cgSg#0#. 将signal变为0
+
+    cgLASg#[lastAppliedSignalNumber]#:
+        lastAppliedSignalNumber: 将lastAppliedSignal变为lastAppliedSignalNumber
+        例: cgLASg#1#. 将lastAppliedSignal变为1
+        ！尚未实现
+
+    reset#
+        所有电机复位, signal变为0.
+        !尚未实现
+
+    stop#
+        紧急停止
+        ！尚未实现
+
+底层通讯: 以下任务会被添加到对应电机的任务队列尾端。
+
+    步进电机：
+
+        dlRtBs#[armNum]#[delay]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlRtBs#0#12.1#. 左机械臂旋转底座等待12.1秒
+
+        rtRtBs#[armNum]#[angle]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            angle -> 角度(单位: 度) 负: 逆时针, 正: 顺时针, 可为小数
+            例: rtRtBs#1#180.3#. 右机械臂旋转底座顺时针旋转180.3度
+
+        dlLfBs#[armNum]#[delay]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlLfBs#0#12.3#. 左机械臂升降底座等待12.3秒
+
+        lfLfBs#[armNum]#[height]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            height -> 高度(单位: 厘米) 负: 升高, 正: 降低, 可为小数
+            例: lfLfBs#1#-15.3#. 右机械臂升降底座升高15.3厘米
+
+        dlMvBs#[delay]#([startSignal]#[endSignal]#):
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlMvBs#4.4#. 机械臂移动底座等待4.4秒
+
+        mvMvBs#[position]#([startSignal]#[endSignal]#):
+            position -> 位置(单位: 厘米), 负: , 正: ,可为小数
+            例: mvMvBs#2.4#. 机械臂移动底座移动2.4厘米
+
+    舵机(机械臂):
+
+        dlAm#[armNum]#[delay]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlAm#1#4.2#. 右机械臂等待4.2秒
+
+        mvAm#[armNum]#[angle]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            angle -> 机械臂张角(单位: 度), 90: 张角最小, 伸出距离最近, 60: 张角最大, 伸出距离最远, 可为小数
+            例: mvAm#0#83.4#. 左机械臂移动到83.4度
+
+        rtSvTwo#[armNum]#[angle]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            angle -> 机械手转动角度(单位: 度), 90: 初始位置, 负: ,正: ,可为小数
+            例: rtSvTwo#1#75.3#. 右机械手转动到75.3度
+
+        rtSvOne#[armNum]#[angle]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            angle -> 机械爪闭合角度(单位: 度), 90: 初始位置, 105: 张开位置, 可为小数
+            例: rtSvONe#0#105#. 左机械臂机械爪张开到105度
+
+        cgMs#[armNum]#[mass]#([startSignal]#[endSignal]#):
+            armNum -> armLeft / armRight
+            mass -> 承重质量(单位: 克), 可为小数
+            例: cgMs#1#200#. 右机械臂称重质量调为200g
+
+中层通讯

@@ -22,7 +22,7 @@
 
 //                          l_L, l_R, r_L, r_R, h_1, h_2
 //rotate 小齿轮12， 大齿轮64
-const int constPul[] =     {28,  13,  33,  12,  34,  36};
+const int constPul[] =     {28,  44,  33,  12,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  45};
 const int intervalTime[] = {250, 250, 240, 240, 150, 150};
 
@@ -44,6 +44,8 @@ struct _stepperMotor{
         this->current_dir = 0;
         this->time = micros();
         this->current_position = 0.0;
+        digitalWrite(this->pul, 0);
+        digitalWrite(this->dir, 0);
     }
 
     bool rotate(double to_angle){//正：逆时针，负：顺时针
@@ -140,5 +142,6 @@ void moveBaseTo(double position, int startSignal = -1, int finishSignal = -1){//
     stepperMotor[moveBaseFront].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
     stepperMotor[moveBaseBack].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
 }
+
 
 #endif

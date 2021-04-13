@@ -1,7 +1,11 @@
-修改源代码，主要库在lib目录下。
+按照以下步骤实现电脑网页端直接控制主体机械部分:
 
-注意: 如果在Arduino IDE环境下，注释掉arduino.ino第一行。
+1.打开路由器，树莓派，8V，24V电源，确保路由器与树莓派网线连接，树莓派通电，树莓派与arduino MEGA接线正常
 
-对于每个电机，都有个对应的任务队列，所以例如给底盘旋转分配任务，rotateRotationBaseTo，会在当前这个点击任务队伍清空后，才执行。
+2.电脑连接到Lavosier wifi, 打开html文件夹下index.html
 
-stepperMotor顶层函数: delayRotationBase, rotateRotationBaseTo, delayLiftBase, liftBaseTo, delayMoveBase, moveBaseTo, 详细见lib/stepperMotor注释
+3.在输入框内输入指令，send
+
+具体指令规范在raspberry---arduino文件内，不要输入目前未实现的指令，可能导致错误。若有错误发生，重新烧程序到arduino MEGA中
+
+假如期望得到arduino MEGA反馈信息，可以连接上arduino MEGA，串口监视器会显示更多信息

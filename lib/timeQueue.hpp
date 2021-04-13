@@ -1,5 +1,5 @@
-#ifndef my_timeQueue
-#define my_timeQueue
+#ifndef myTimeQueue
+#define myTimeQueue
 
 #define timeUnitBeingDelay -1
 #define timeUnitDelay 0
@@ -8,6 +8,10 @@
 #define timeUnitReachArm 1
 #define timeUnitRotateServoTwo 2
 #define timeUnitRotateServoOne 3
+#define timeUnitChangeMass 4
+
+#define armLeft 0
+#define armRight 1
 
 int signal = 0;
 int lastAppliedSignal = 0;
