@@ -8,21 +8,19 @@
 #include "timeQueue.hpp"
 #define stepperMotor_n 6
 
-#define rotationBaseLeft 2
-#define rotationBaseRight 3
-#define rotationBaseRatio ((double)20.8)
+#define rotationBasePlusNum 2
+#define rotationBaseRatio ((float)20.8)
 
-#define liftBaseLeft 0
-#define liftBaseRight 1
-#define liftBaseRatio ((double)350.0)
+#define liftBasePlusNum 0
+#define liftBaseRatio ((float)350.0)
 
 #define moveBaseFront 4
 #define moveBaseBack 5
-#define moveBaseRatio ((double)350.0)
+#define moveBaseRatio ((float)350.0)
 
 //                          l_L, l_R, r_L, r_R, h_1, h_2
 //rotate 小齿轮12， 大齿轮64
-const int constPul[] =     {28,  44,  33,  12,  34,  36};
+const int constPul[] =     {28,  44,  33,  47,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  45};
 const int intervalTime[] = {250, 250, 240, 240, 150, 150};
 
@@ -30,7 +28,7 @@ struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器
     unsigned long int time;
     unsigned long long counter;
-    double current_position;//current_position继承了angle与position,命名为position
+    float current_position;//current_position继承了angle与position,命名为position
     _timeQueue timeQueue;
 
     _stepperMotor() = default;
@@ -48,7 +46,7 @@ struct _stepperMotor{
         digitalWrite(this->dir, 0);
     }
 
-    bool rotate(double to_angle){//正：逆时针，负：顺时针
+    bool rotate(float to_angle){//正：逆时针，负：顺时针
         if (abs(to_angle - this->current_position) < 1.0){
             digitalWrite(this->pul, 0);
             digitalWrite(this->dir, 0);
@@ -110,35 +108,35 @@ struct _stepperMotor{
 
 }stepperMotor[stepperMotor_n];
 
-//void rotateRotationBase(int rotate_num, double angle){//rotate_num: 0(rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
+//void rotateRotationBase(int rotate_num, float angle){//rotate_num: 0(rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
 //    if (rotate_num == 0)
 //        stepperMotor[2].rotate(angle * rotationBaseRatio);
 //    else
 //        stepperMotor[3].rotate(angle * rotationBaseRatio);
 //}
 
-void delayRotationBase(int rotateNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 rotate_num: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
-    stepperMotor[rotateNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+void delayRotationBase(int armNum, float delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 armNum: armLeft->左底座 armRight->右底座
+    stepperMotor[armNum + rotationBasePlusNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void rotateRotationBaseTo(int rotateNum, double angle, int startSignal = -1, int finishSignal = -1){//angle单位:度 rotateNum: (rotationBaseLeft)->左底座 (rotationBaseRight)->右底座
-    stepperMotor[rotateNum].timeQueue.push(timeUnitStepperMotorMove, angle * rotationBaseRatio, startSignal, finishSignal);
+void rotateRotationBaseTo(int armNum, float angle, int startSignal = -1, int finishSignal = -1){//angle单位:度 armNum: armLeft->左底座 armRight->右底座
+    stepperMotor[armNum + rotationBasePlusNum].timeQueue.push(timeUnitStepperMotorMove, angle * rotationBaseRatio, startSignal, finishSignal);
 }
 
-void delayLiftBase(int liftNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
-    stepperMotor[liftNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+void delayLiftBase(int armNum, float delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒 armNum: armLeft->左底座 armRight->右底座
+    stepperMotor[armNum + liftBasePlusNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void liftBaseTo(int liftNum, double height, int startSignal = -1, int finishSignal = -1){//height单位:厘米, liftNum: (liftBaseLeft)->左底座 (liftBaseRight)->右底座
-    stepperMotor[liftNum].timeQueue.push(timeUnitStepperMotorMove, height * liftBaseRatio, startSignal, finishSignal);
+void liftBaseTo(int armNum, float height, int startSignal = -1, int finishSignal = -1){//height单位:厘米, armNum: armLeft->左底座 armRight->右底座
+    stepperMotor[armNum + liftBasePlusNum].timeQueue.push(timeUnitStepperMotorMove, height * liftBaseRatio, startSignal, finishSignal);
 }
 
-void delayMoveBase(double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
+void delayMoveBase(float delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
     stepperMotor[moveBaseFront].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
     stepperMotor[moveBaseBack].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void moveBaseTo(double position, int startSignal = -1, int finishSignal = -1){//position单位:厘米
+void moveBaseTo(float position, int startSignal = -1, int finishSignal = -1){//position单位:厘米
     stepperMotor[moveBaseFront].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
     stepperMotor[moveBaseBack].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
 }

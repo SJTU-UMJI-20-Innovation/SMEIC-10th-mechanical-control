@@ -1,5 +1,7 @@
-更新于2021/4/13/19:58
-更新: 不再以#分隔，以空格' '分隔，结束符不再需要
+更新于2021/4/16/14:28
+更新:
+不再以#分隔，以空格' '分隔，结束符不再需要
+删除指令bf, reset, changeLastSignal
 
 常量:
 #define armLeft 0
@@ -30,24 +32,9 @@ ms -> mass
 所有signal目前设定为1~1024整数
 
 特殊:
-    bfOn
-        接下来输入的所有指令, 直到BfOff指令之前, 都会被存储在Arduino中缓冲区内, 读到BfOff才统一开始解析(缓冲区最多20条指令)
-
-    bfOff
-        Arduino立刻执行缓冲区内所有制令
-
     cgSg [signalNumber]:
         signalNumber: 将signal变为signalNumber
         例: cgSg 0 -> 将signal变为0
-
-    cgLASg [lastAppliedSignalNumber]:
-        lastAppliedSignalNumber: 将lastAppliedSignal变为lastAppliedSignalNumber
-        例: cgLASg 1 -> 将lastAppliedSignal变为1
-        ！尚未实现
-
-    reset
-        所有电机复位, signal变为0.
-        !尚未实现
 
     stop
         紧急停止

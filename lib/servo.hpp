@@ -22,24 +22,24 @@
 //                                                        L1,    L2,    L3,    L4,    L5,      R1,    R2,    R3,    R4,    R5
 const int constPin[arm_n][eachArmServo_n] =             {{9,     8,     7,     10,    11},    {6,     5,     4,     2,     3}};
 const int initialPos[arm_n][eachArmServo_n] =           {{90,    88,    90,    90,    90},    {90,    90,    90,    90,    90}};
-const double armReachIndex[arm_n][eachArmServo_n] =     {{0.0,   0.0,   1.0,   2.0,   -1.0},  {0.0,   0.0,   -1.0,  2.0,   -1.0}};
+const float armReachIndex[arm_n][eachArmServo_n] =     {{0.0,   0.0,   1.0,   2.0,   -1.0},  {0.0,   0.0,   -1.0,  2.0,   -1.0}};
 
-const double weightIndex[arm_n][eachArmServo_n] =       {{0.0,   0.0,   -1.0,  -2.0,  -1.0},   {0.0,   0.0,  1.0,   -1.5,  -1.5}};
+const float weightIndex[arm_n][eachArmServo_n] =       {{0.0,   0.0,   -1.0,  -2.0,  -1.0},   {0.0,   0.0,  1.0,   -1.5,  -1.5}};
 ////调整参数                                                                                                                 -1.5
 //                                                               越重    -a     -2a    -a                     +a     -2a    -a
-const double armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   2.0,   -90.0, 180.0}, {0.0,   0.0,   178.0, -90.0, 180.0}};
+const float armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   2.0,   -90.0, 180.0}, {0.0,   0.0,   178.0, -90.0, 180.0}};
 
-const double armSpeed  = 0.0625;
-const double servoTwoSpeed = 1.0;
-const double grabSpeed = 0.1;
+const float armSpeed  = 0.0625;
+const float servoTwoSpeed = 1.0;
+const float grabSpeed = 0.1;
 
-const double releasePosition = 80.0;
-const double grabPosition = 90.0;
+const float releasePosition = 80.0;
+const float grabPosition = 90.0;
 
 struct _arm{
     int id;
     unsigned long nextMoveMills;
-    double currentArmPosition, currentServoTwoPosition, currentGrabPosition, mass;
+    float currentArmPosition, currentServoTwoPosition, currentGrabPosition, mass;
     _timeQueue timeQueue;
     _arm() = default;
     Servo servo[eachArmServo_n];
@@ -62,7 +62,7 @@ struct _arm{
         reset();
     }
 
-    bool reachArm(double toArmPosition) {//toArmPosition:90~30(90:the initial position,30:the furthest postion
+    bool reachArm(float toArmPosition) {//toArmPosition:90~30(90:the initial position,30:the furthest postion
         if (abs(toArmPosition - this->currentArmPosition) < 0.1)
             return true;
         if (millis() < this->nextMoveMills)
@@ -79,7 +79,7 @@ struct _arm{
         return false;
     }
 
-    bool rotateServoTwo(double toServoTwoPosition){
+    bool rotateServoTwo(float toServoTwoPosition){
         if (abs(toServoTwoPosition - this->currentServoTwoPosition) < servoTwoSpeed + 0.02)
             return true;
         if (millis() < this->nextMoveMills)
@@ -93,9 +93,9 @@ struct _arm{
         servo[1].write(this->currentServoTwoPosition);
     }
 
-    bool rotateServoOne(double toServoOnePosition){
-//        toServoOnePosition = min((double)120.0, toServoOnePosition);
-//        toServoOnePosition = max((double)85.0, toServoOnePosition);
+    bool rotateServoOne(float toServoOnePosition){
+        toServoOnePosition = min((float)120.0, toServoOnePosition);
+        toServoOnePosition = max((float)85.0, toServoOnePosition);
 
         if (abs(toServoOnePosition - this->currentGrabPosition) < grabSpeed + 0.02){
 //            Serial.println("rotateServoOne->true");
@@ -164,27 +164,27 @@ struct _arm{
     }
 }arm[arm_n];
 
-double deltaArmReachIndex(double mass){
+float deltaArmReachIndex(float mass){
     return mass;
 }
 
-void moveArm(int armNum, double position, int startSignal = -1, int finishSignal = -1) {//armNum: leftArm/rightArm, Position:90~30(90:the initial position,30:the furthest postion
+void moveArm(int armNum, float position, int startSignal = -1, int finishSignal = -1) {//armNum: leftArm/rightArm, Position:90~30(90:the initial position,30:the furthest postion
     arm[armNum].timeQueue.push(timeUnitReachArm, position, startSignal, finishSignal);
 }
 
-void delayArm(int armNum, double delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
+void delayArm(int armNum, float delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
     arm[armNum].timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
 }
 
-void rotateServoTwo(int armNum, double position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
+void rotateServoTwo(int armNum, float position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
     arm[armNum].timeQueue.push(timeUnitRotateServoTwo, position, startSignal, finishSignal);
 }
 
-void rotateServoOne(int armNum, double position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
+void rotateServoOne(int armNum, float position, int startSignal = -1, int finishSignal = -1){//armNum: leftArm/rightArm,
     arm[armNum].timeQueue.push(timeUnitRotateServoOne, position, startSignal, finishSignal);
 }
 
-void changeMass(int armNum, double mass, int startSignal = -1, int finishSignal = -1){
+void changeMass(int armNum, float mass, int startSignal = -1, int finishSignal = -1){
     arm[armNum].timeQueue.push(timeUnitChangeMass, mass, startSignal, finishSignal);
 }
 
