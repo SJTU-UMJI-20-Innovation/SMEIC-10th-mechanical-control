@@ -6,8 +6,8 @@
 #define dir_r_L 20
 #define pul_r_R 12
 #define dir_r_R 23
-#define pul_h_1 11
-#define dir_h_1 41
+#define pul_h_1 10
+#define dir_h_1 45
 #define pul_h_2 10
 #define dir_h_2 45
 
@@ -19,6 +19,7 @@ void steppermotor(int to_angle,int motorNum)
     static int dir;
     static float current_angle;
     static int current_dir;
+
     static float current_angle_l_L = 0;
     static float current_angle_l_R = 0;
     static float current_angle_r_L = 0;
@@ -37,18 +38,18 @@ void steppermotor(int to_angle,int motorNum)
     if(motorNum == 4) {pul = pul_r_R;dir = dir_r_R;current_dir = current_dir_r_R;current_angle = current_angle_r_R;}
     if(motorNum == 5) {pul = pul_h_1;dir = dir_h_1;current_dir = current_dir_h;current_angle = current_position_h;}
 
-    static int i[5] = {1,1,1,1,1};
+    static int i[7] = {1,1,1,1,1,1,1};
     static int to_dir;
     if(to_angle - current_angle > 0) to_dir = 1;
     if(to_angle - current_angle < 0) to_dir = 0;
 
-    static unsigned long time = 0;
+    static unsigned long time[7] = {0,0,0,0,0,0,0};
 
     if(current_dir != to_dir && current_dir != -1){
         digitalWrite(pul, 0);
-        if((micros()-time) > 1000000){
+        if((micros()-time[motorNum]) > 1000000){
             current_dir = to_dir;
-            time = micros();
+            time[motorNum] = micros();
         }
     }
     else
@@ -56,21 +57,21 @@ void steppermotor(int to_angle,int motorNum)
         if(to_dir == 1){
             digitalWrite(dir, 1);
             current_dir = 1;
-            if((micros() - time) >= 250){
+            if((micros() - time[motorNum]) >= 250){
                 digitalWrite(pul, i[motorNum]%2);
                 current_angle = current_angle + (i[motorNum]%2 == 1)*0.225;
                 i[motorNum] += 1;
-                time = micros();
+                time[motorNum] = micros();
             } 
         }
         if(to_dir == 0){
             digitalWrite(dir, 0);
             current_dir = 0;
-            if((micros() - time) >= 250){
+            if((micros() - time[motorNum]) >= 250){
                 digitalWrite(pul, i[motorNum]%2);
                 current_angle = current_angle - (i[motorNum]%2 == 1)*0.225;
                 i[motorNum] += 1;
-                time = micros();
+                time[motorNum] = micros();
             } 
         }
         if(to_angle-current_angle == 0){
@@ -103,6 +104,8 @@ void setup()
 
 void loop(){
 
-    steppermotor(-1200,1);
+      steppermotor(150,5);
+
+    
 
 }
