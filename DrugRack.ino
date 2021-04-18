@@ -1,10 +1,11 @@
 #include <Servo.h>
 
+
 Servo servo1;
 Servo servo2;
 Servo servo3;
 Servo servo4;
-int IN1 = 7;
+int IN1 = 7;，
 int IN2 = 8;
 int ENA = 2;
 bool flag1 = true;
@@ -55,7 +56,7 @@ void loop() {
 
   }
   if(millis()>3000 && flag1){
-    servo1.write(140);
+    servo1.write(140);//140为完全打开
     servo2.write(140);
     servo3.write(140);
     servo4.write(140);
@@ -70,7 +71,7 @@ if(millis()>4000 && flag2){
   }
   
   if(millis()>4500 && flag2){
-    servo1.write(60);
+    servo1.write(60);//60为完全关闭
     servo2.write(60);
     servo3.write(60);
     servo4.write(60);
