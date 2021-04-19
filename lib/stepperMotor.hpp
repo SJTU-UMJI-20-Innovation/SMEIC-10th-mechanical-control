@@ -22,7 +22,8 @@
 //rotate 小齿轮12， 大齿轮64
 const int constPul[] =     {28,  44,  33,  47,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  45};
-const int intervalTime[] = {250, 250, 240, 240, 150, 150};
+//const int intervalTime[] = {250, 250, 240, 240, 150, 150};
+const int intervalTime[] = {250, 250, 240, 240, 180, 180};
 
 struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器

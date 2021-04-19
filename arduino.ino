@@ -14,6 +14,15 @@ void setup(){
         stepperMotor[i].init(i);
     for (int i = 0; i < arm_n; ++i)
         arm[i].init(i);
+
+//    moveBaseTo(5.0);
+//    moveBaseTo(0.0);
+
+//    delayArm(1, 5.0);
+//    rotateServoOne(1, 1 10);
+//    delayArm(1, 3.0);
+//    rotateServoOne(1, 90);
+    
       Serial.println("finish setup");
 }
 
