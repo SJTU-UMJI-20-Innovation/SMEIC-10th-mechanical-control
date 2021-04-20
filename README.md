@@ -6,6 +6,6 @@
 
 3.在输入框内输入指令，send
 
-具体指令规范在raspberry---arduino文件内，不要输入目前未实现的指令，可能导致错误。若有错误发生，重新烧程序到arduino MEGA中
+具体指令规范在raspberry---arduino文件。若有错误发生，重新烧程序到arduino MEGA中
 
 假如期望得到arduino MEGA反馈信息，可以连接上arduino MEGA，串口监视器会显示更多信息
