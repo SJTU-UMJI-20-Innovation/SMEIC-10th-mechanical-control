@@ -138,6 +138,7 @@ void delayMoveBase(float delay, int startSignal = -1, int finishSignal = -1){//d
 }
 
 void moveBaseTo(float position, int startSignal = -1, int finishSignal = -1){//position单位:厘米
+    Serial.println("In moveBaseTo");
     stepperMotor[moveBaseFront].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
     stepperMotor[moveBaseBack].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
 }

@@ -92,6 +92,7 @@ void _processCmd(byte* buf) {
                 delayMoveBase(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             } else {
                 SPIDebug("moveBaseTo ")
+//                Serial.println(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]));
                 moveBaseTo(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             }
             break;

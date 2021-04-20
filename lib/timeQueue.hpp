@@ -14,9 +14,8 @@
 #define armRight 1
 
 #define bufferStorageSize 20
-#define debugMode true
-
-#define ifDebug true
+#define debugMode false
+#define ifDebug false
 int signal = 0;
 int lastAppliedSignal = 0;
 
