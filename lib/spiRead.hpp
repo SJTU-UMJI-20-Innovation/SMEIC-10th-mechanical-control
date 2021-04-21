@@ -24,9 +24,9 @@ volatile void processOneByte() {
 
     byte b = SPDR;
     buf[bufPos] = b;
+    remainingBytes --;
     if (bufPos) {
-        if (remainingBytes > 1) {
-            remainingBytes --;
+        if (remainingBytes) {
             bufPos ++;
         } else {
             _processCmd(buf);
