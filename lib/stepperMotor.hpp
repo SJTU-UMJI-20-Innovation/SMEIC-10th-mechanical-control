@@ -21,9 +21,9 @@
 //                          l_L, l_R, r_L, r_R, h_1, h_2
 //rotate 小齿轮12， 大齿轮64
 const int constPul[] =     {28,  44,  33,  47,  34,  36};
-const int constDir[] =     {14,  17,  20,  23,  41,  45};
+const int constDir[] =     {14,  17,  20,  23,  41,  5};
 //const int intervalTime[] = {250, 250, 240, 240, 150, 150};
-const int intervalTime[] = {250, 250, 240, 240, 180, 180};
+const int intervalTime[] = {250, 250, 240, 240, 100, 100};
 
 struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器
@@ -82,9 +82,9 @@ struct _stepperMotor{
             return;
 
         if (signal >= this->timeQueue.frontPoint()->startSignal)
-        switch(this->timeQueue.front().id){
+        switch(this->timeQueue.frontPoint()->id){
             case timeUnitBeingDelay:
-                if (millis() >= this->timeQueue.front().index) {
+                if (millis() >= this->timeQueue.frontPoint()->index) {
                     signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
                     this->timeQueue.pop();
                 }
@@ -138,7 +138,7 @@ void delayMoveBase(float delay, int startSignal = -1, int finishSignal = -1){//d
 }
 
 void moveBaseTo(float position, int startSignal = -1, int finishSignal = -1){//position单位:厘米
-    Serial.println("In moveBaseTo");
+//    Serial.println("In moveBaseTo");
     stepperMotor[moveBaseFront].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
     stepperMotor[moveBaseBack].timeQueue.push(timeUnitStepperMotorMove, position * moveBaseRatio, startSignal, finishSignal);
 }

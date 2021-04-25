@@ -10,12 +10,14 @@
 #define timeUnitRotateServoOne 3
 #define timeUnitChangeMass 4
 
+#define timeUnitPiChange 1
+
 #define armLeft 0
 #define armRight 1
 
 #define bufferStorageSize 20
-#define debugMode true
-#define ifDebug true
+#define debugMode false
+#define latePrint false
 int signal = 0;
 int lastAppliedSignal = 0;
 
@@ -66,10 +68,6 @@ struct _timeQueue{
         _timeUnit *release_p = p_head;
         this->p_head = this->p_head->next;
         delete(release_p);
-    }
-
-    _timeUnit front(){
-        return *this->p_head->next;
     }
 
     _timeUnit* frontPoint(){

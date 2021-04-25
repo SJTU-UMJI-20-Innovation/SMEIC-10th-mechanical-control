@@ -1,10 +1,22 @@
 #include "servo.hpp"
 #include "stepperMotor.hpp"
 #include "action.hpp"
+#include "timeQueue.hpp"
 
 #include <SPI.h>
-#define BUFFER_SIZE 5
-#define SPIDebug(sth) if(ifDebug){Serial.print(sth);printIntDoubleIntInt(buf);}
+#define BUFFER_SIZE 6
+#define SPIDebug(sth) if(latePrint){print[print_n] = (sth) + printIntDoubleIntInt(buf); print_n++;}
+
+volatile bool spiResendFlag = false;
+volatile bool spiSendingFlag = false;
+volatile unsigned long spiStartTime = 0;
+
+const uint8_t polynome = 0x7;
+const int piCommunicationPin = 48;
+
+int print_n = 0;
+unsigned long print_time = 0;
+String print[100];
 
 void initSPI() {
     pinMode(MISO, OUTPUT);
@@ -20,7 +32,15 @@ float _thirteenBitsToFloat(uint16_t rawData);
 volatile void processOneByte() {
     static byte buf[BUFFER_SIZE];
     static uint8_t bufPos = 0;
-    static uint8_t remainingBytes = 0;
+    static uint8_t remainingBytes = 1;
+
+    if (spiResendFlag){
+        bufPos = 0;
+        remainingBytes = 1;
+        spiResendFlag = false;
+    }
+
+    digitalWrite(piCommunicationPin, LOW);
 
     byte b = SPDR;
     buf[bufPos] = b;
@@ -32,35 +52,76 @@ volatile void processOneByte() {
             _processCmd(buf);
             memset(buf, 0, BUFFER_SIZE);
             bufPos = 0;
+            remainingBytes = 1;
+            spiSendingFlag = false;
         }
     } else {
+
         //5bit command 3bit length
-        remainingBytes = b & 0x07;
+        spiSendingFlag = true;
+        spiStartTime = micros();
+        remainingBytes = 5;
         bufPos ++;
     }
 }
 
-void printIntDoubleIntInt(byte* buf){
-    Serial.print((buf[1] & 0x60) >> 5);
-    Serial.print(" rawData: ");
-    Serial.print(((buf[1] & 0x1F) << 8) + buf[2]);
-    Serial.print(" Data: ");
-    Serial.print(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]));
-    Serial.print(' ');
-    Serial.print(buf[3]);
-    Serial.print(' ');
-    Serial.println(buf[4]);
+String printIntDoubleIntInt(byte* buf){
+    String temp = String((buf[1] & 0x60) >> 5) + " rawData: " + String(((buf[1] & 0x1F) << 8) + buf[2])
+            + " Data: "+ String(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2])) + ' ' +
+            String(buf[3]) + ' ' + String(buf[4]) + "\n";
+//    Serial.print((buf[1] & 0x60) >> 5);
+//    Serial.print(" rawData: ");
+//    Serial.print(((buf[1] & 0x1F) << 8) + buf[2]);
+//    Serial.print(" Data: ");
+//    Serial.print(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]));
+//    Serial.print(' ');
+//    Serial.print(buf[3]);
+//    Serial.print(' ');
+//    Serial.println(buf[4]);
+    return temp;
 }
 
-void _processCmd(byte* buf) {
-    if (debugMode) {
-//        Serial.println("process Cmd");
-//        Serial.println(buf[0]);
-//        Serial.println(buf[1]);
-//        Serial.println(buf[2]);
-//        Serial.println(buf[3]);
-//        Serial.println(buf[4]);
+uint8_t CRC8(byte* buf){
+    uint8_t _crc = 0;
+    for (int i = 0; i < BUFFER_SIZE; ++i){
+        _crc ^= buf[i];
+        for (int j = 8; j; --j){
+            if (_crc & (1 << 7)){
+                _crc <<= 1;
+                _crc ^= polynome;
+            }
+            else
+                _crc <<= 1;
+        }
     }
+    return _crc;
+}
+
+
+void _processCmd(byte* buf) {
+
+    if (latePrint){
+        if (print_n == 0)
+            print_time = millis() + 3000;
+        print[print_n] = String(buf[0]) + " " + String(buf[1]) + " " + String(buf[2]) + " " + String(buf[3]) + " " + String(buf[4]) + " " + String(buf[5]) + "\n";
+        print_n++;
+    }
+
+    uint8_t CRC8Check = CRC8(buf);
+    if (CRC8Check != 0){
+        digitalWrite(piCommunicationPin, HIGH);
+        if (latePrint){
+            print[print_n] = "Fail CRC check, callback: " + String(CRC8Check) + "\n\n";
+            print_n++;
+        }
+        return;
+    }
+
+    if (latePrint){
+        print[print_n] = "Pass CRC check\n";
+        print_n++;
+    }
+
     switch (buf[0] >> 3) {
         case 1: //stop
             stop();
