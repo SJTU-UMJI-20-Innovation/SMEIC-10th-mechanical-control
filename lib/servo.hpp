@@ -21,13 +21,14 @@
 #define servoMoveMills 4
 //                                                        L1,    L2,    L3,    L4,    L5,      R1,    R2,    R3,    R4,    R5
 const int constPin[arm_n][eachArmServo_n] =             {{9,     8,     7,     10,    11},    {6,     5,     4,     2,     3}};
-const int initialPos[arm_n][eachArmServo_n] =           {{90,    94,    90,    90,    90},    {90,    90,    90,    90,    90}};
-const float armReachIndex[arm_n][eachArmServo_n] =     {{0.0,   0.0,   1.0,   2.0,   -1.0},  {0.0,   0.0,   -1.0,  2.0,   -1.0}};
+const float initialPos[arm_n][eachArmServo_n] =           {{90,    94,    92,    90,    92},    {90,    90,    88,    90,    92}};
+
+const float armReachIndex[arm_n][eachArmServo_n] =     {{0.0,   0.0,   0.85,   2.0,   -0.8},  {0.0,   0.0,   -1.0,  2.0,   -0.8}};
 
 const float weightIndex[arm_n][eachArmServo_n] =       {{0.0,   0.0,   -1.0,  -1.5,  -1.5},   {0.0,   0.0,  1.0,   -1.5,  -1.5}};
 ////调整参数                                                                                                                 -1.5
 //                                                               越重    -a     -2a    -a                     +a     -2a    -a
-const float armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   2.0,   -90.0, 180.0}, {0.0,   0.0,   178.0, -90.0, 180.0}};
+const float armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   15.5,   -90.0,  164.0}, {0.0,   0.0,   178.0, -90.0, 164.0}};
 
 
 const float armSpeed  = 0.0625;

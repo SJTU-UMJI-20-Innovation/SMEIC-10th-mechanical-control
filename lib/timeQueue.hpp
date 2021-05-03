@@ -17,7 +17,7 @@
 
 #define bufferStorageSize 20
 #define debugMode false
-#define latePrint false
+#define latePrint true
 int signal = 0;
 int lastAppliedSignal = 0;
 

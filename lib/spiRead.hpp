@@ -99,7 +99,7 @@ uint8_t CRC8(byte* buf){
 
 
 void _processCmd(byte* buf) {
-
+//    Serial.println("in process cmd");
     if (latePrint){
         if (print_n == 0)
             print_time = millis() + 3000;
