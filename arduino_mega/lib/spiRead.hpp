@@ -14,6 +14,10 @@ volatile unsigned long spiStartTime = 0;
 const uint8_t polynome = 0x7;
 const int piCommunicationPin = 48;
 
+byte buf[BUFFER_SIZE];
+uint8_t bufPos = 0;
+uint8_t remainingBytes = 1;
+
 int print_n = 0;
 unsigned long print_time = 0;
 String print[100];
@@ -30,9 +34,6 @@ float _thirteenBitsToFloat(uint16_t rawData);
 
 
 volatile void processOneByte() {
-    static byte buf[BUFFER_SIZE];
-    static uint8_t bufPos = 0;
-    static uint8_t remainingBytes = 1;
 
     if (spiResendFlag){
         bufPos = 0;
@@ -110,10 +111,13 @@ void _processCmd(byte* buf) {
     uint8_t CRC8Check = CRC8(buf);
     if (CRC8Check != 0){
         digitalWrite(piCommunicationPin, HIGH);
+        spiResendFlag = true;
         if (latePrint){
             print[print_n] = "Fail CRC check, callback: " + String(CRC8Check) + "\n\n";
             print_n++;
         }
+        Serial.println("CRC fail want to resend");
+        Serial.println(remainingBytes);
         return;
     }
 

@@ -42,7 +42,7 @@ void setup(){
 }
 
 ISR(SPI_STC_vect) {
-    processOneByte();
+        processOneByte();
 }
 
 void loop(){
@@ -63,7 +63,9 @@ void loop(){
         }
         spiResendFlag = true;
         spiSendingFlag = false;
-        digitalWrite(piCommunicationPin, HIGH);
+//        digitalWrite(piCommunicationPin, HIGH);
+        Serial.println("Lose byte want to resend");
+        Serial.println(remainingBytes);
     }
     if (latePrint && print_n != 0 && print_time < millis()){
         int temp_n = print_n;

@@ -23,7 +23,7 @@
 const int constPul[] =     {28,  44,  33,  47,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  5};
 //const int intervalTime[] = {250, 250, 240, 240, 150, 150};
-const int intervalTime[] = {250, 250, 240, 240, 100, 100};
+const int intervalTime[] = {250, 250, 240, 240, 50, 50};
 
 struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器

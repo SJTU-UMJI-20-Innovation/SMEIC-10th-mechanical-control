@@ -3,17 +3,9 @@
 
 #define timeUnitBeingDelay -1
 #define timeUnitDelay 0
-#define timeUnitStepperMotorMove 1
+#define timeUnitGetLiquid 1
+#define timeUnitGetSolid 2
 
-#define timeUnitReachArm 1
-#define timeUnitRotateServoTwo 2
-#define timeUnitRotateServoOne 3
-#define timeUnitChangeMass 4
-
-#define timeUnitPiChange 1
-
-#define armLeft 0
-#define armRight 1
 
 #define bufferStorageSize 20
 #define debugMode false

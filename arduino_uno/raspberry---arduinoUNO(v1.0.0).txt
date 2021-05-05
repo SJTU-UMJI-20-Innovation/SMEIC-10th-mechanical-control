@@ -1,0 +1,54 @@
+更新于2021/5/4 21:20
+
+规范:
+/两侧表示两侧指令都支持
+()内表示非必须参数, 有关startSignal与endSignal详细信息还是来问下魏奕晨吧
+[]内表示参数, 普遍的有:
+    arduino代码中有个全局变量signal, lastAppliedSignal
+    startSignal -> 该条指令只会在signal > startSignal时才开始执行
+    endSignal -> 该条指令在完成后，会将signal变为max(signal, endSignal)
+
+每一部分都以空格' '以区分, 结束不需要额外空格
+
+缩写表:
+bf -> buffer
+sg -> signal
+dl -> delay
+rt -> rotation/rotate
+bs -> base
+lf -> lift
+mv -> move
+am -> arm
+sv -> servo
+cg -> change
+ms -> mass
+
+所有signal目前设定为1~1024整数
+
+特殊:
+    stop UNO
+        紧急停止
+
+UNO底层通讯: 以下任务会被添加到对应电机的任务队列尾端。
+
+    电机：
+
+        dlSl/delaySolid [delay] ([startSignal] [endSignal]):
+        delay -> 等待秒数(单位: 秒), 可为小数
+        例: dlGtSl 4.2 -> 取固体等待4.2秒
+
+        gtSl/getSolid [mass] ([startSignal] [endSignal]):
+        mass -> 固体质量(单位: 克), 可为小数
+        例: gtSl 5.0 -> 取5.0克固体
+
+    舵机(取液体):
+
+        dlLq/delayLiquid [liquidNum] [delay] ([startSignal] [endSignal]):
+        liquidNum -> 滴定管号码(0, 1, 2, 3)
+        delay -> 等待秒数(单位: 秒), 可为小数
+        例: dlLq 1 3.7 -> 1号滴定管等待3.7秒
+
+        gtLq/getLq [liquidNum] [volume] ([startSignal] [endSignal]):
+        liquidNum -> 滴定管号码(0, 1, 2, 3)
+        volume -> 液体体积(单位: 毫升), 可为小数
+        例: gtLq 0 4.2 -> 0号滴定管取液体4.2毫升

@@ -22,7 +22,7 @@ function sendCmdList() {
         }
     }
     if (outputArea.value === "processing\n")
-        outputArea.value += "All good\n";
+        outputArea.value = "";
 }
 
 function checkSend(cmd, line){
@@ -30,6 +30,7 @@ function checkSend(cmd, line){
     // console.log(message[0]);
     switch (message[0]) {
         case "stop":
+            if (message[1] == "MEGA")
             registerSend(cmd);
             break;
         case "cgSg": case "changeSignal":
@@ -137,6 +138,12 @@ function checkSend(cmd, line){
             }
             if (message.length < 3){
                 outputArea.value += "Error in changeMass on line " + line + ": wrong input number\n";
+                return false;
+            }
+            break;
+        case "gtLq":
+            if (message[1] != "0" && message[1] != "1" && message[1] != "2" && message[1] != "3"){
+                outputArea.value += "Error in getLiquid on line " + line + ": invalid liquidNum\n";
                 return false;
             }
             break;
