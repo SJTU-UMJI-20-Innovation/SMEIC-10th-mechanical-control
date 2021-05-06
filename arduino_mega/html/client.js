@@ -147,6 +147,18 @@ function checkSend(cmd, line){
                 return false;
             }
             break;
+        case "gtSl":
+            if (message.length < 2){
+                outputArea.value += "Error in getSolid on line " + line + ": wrong input number\n";
+                return false;
+            }
+            break;
+        case "mvCm":
+            if (message[1] != "0" && message[1] != "1"){
+                outputArea.value += "Error in moveCamera on line " + line + ": invalid direction\n";
+                return false;
+            }
+            break;
         default:
             outputArea.value += ("Unknown Command on line " + line + ": " + message[0] + "\n");
             return false;

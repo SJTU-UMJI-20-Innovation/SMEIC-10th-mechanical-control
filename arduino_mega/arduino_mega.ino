@@ -16,6 +16,7 @@ void setup(){
         stepperMotor[i].init(i);
     for (int i = 0; i < arm_n; ++i)
         arm[i].init(i);
+    camera.init();
 //    delayArm(0, 5.0);
 //    moveArm(0, 85);
 //    delayArm(0, 5.0);
@@ -39,6 +40,8 @@ void setup(){
         print[print_n] = "Late print ready\n";
         print_n++;
     }
+//    delayCamera(2);
+//    moveCamera(1, 110);
 }
 
 ISR(SPI_STC_vect) {
@@ -54,6 +57,7 @@ void loop(){
         stepperMotor[i].loopRun();
     for (int i = 0; i < arm_n; ++i)
         arm[i].loopRun();
+    camera.loopRun();
     if (spiSendingFlag && spiStartTime + 1000 < micros()){
         if (latePrint){
             if (print_n == 0)
@@ -63,9 +67,10 @@ void loop(){
         }
         spiResendFlag = true;
         spiSendingFlag = false;
-//        digitalWrite(piCommunicationPin, HIGH);
-        Serial.println("Lose byte want to resend");
-        Serial.println(remainingBytes);
+        digitalWrite(piCommunicationPin, HIGH);
+//        Serial.println("Lose byte want to resend");
+//        Serial.println(remainingBytes);
+//        Serial.println(bufferPos);
     }
     if (latePrint && print_n != 0 && print_time < millis()){
         int temp_n = print_n;

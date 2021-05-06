@@ -19,6 +19,11 @@
 #define eachArmServo_n 5
 
 #define servoMoveMills 4
+
+#define cameraUpDown 0
+// 50~180
+#define cameraLeftRight 1
+//
 //                                                        L1,    L2,    L3,    L4,    L5,      R1,    R2,    R3,    R4,    R5
 const int constPin[arm_n][eachArmServo_n] =             {{9,     8,     7,     10,    11},    {6,     5,     4,     2,     3}};
 const float initialPos[arm_n][eachArmServo_n] =           {{90,    94,    94,    90,    92},    {90,    88,    88,    90,    90.5}};
@@ -30,6 +35,8 @@ const float weightIndex[arm_n][eachArmServo_n] =       {{0.0,   0.0,   0.0,    0
 //                                                               越重    -a     -2a    -a                     +a     -2a    -a
 const float armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   17.5,   -90.0,  164.0}, {0.0,   0.0,   193.5, -90.0, 164.0}};
 
+const int cameraPin[2] = {13, 12};
+const float initialCameraPos[2] = {90, 90};
 
 const float armSpeed  = 0.0625;
 const float servoTwoSpeed = 1.0;
@@ -167,6 +174,59 @@ struct _arm{
     }
 }arm[arm_n];
 
+struct _camera{
+    _timeQueue timeQueue;
+    Servo servo[2];
+    void reset(){
+        servo[cameraUpDown].write(initialCameraPos[cameraUpDown]);
+        servo[cameraLeftRight].write(initialCameraPos[cameraLeftRight]);
+    }
+
+    void init(){
+        servo[cameraUpDown].attach(cameraPin[cameraUpDown]);
+        servo[cameraLeftRight].attach(cameraPin[cameraLeftRight]);
+        reset();
+    }
+
+    bool moveCamera(int direction, double angle){
+        servo[direction].write(angle);
+        return true;
+    }
+
+    void loopRun(){
+        if (this->timeQueue.empty())
+            return;
+
+        if (signal >= this->timeQueue.frontPoint()->startSignal)
+            switch(this->timeQueue.frontPoint()->id){
+                case timeUnitBeingDelay:
+                    if (millis() >= this->timeQueue.frontPoint()->index) {
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
+                case timeUnitDelay:
+                    this->timeQueue.frontPoint()->id = timeUnitBeingDelay;
+                    this->timeQueue.frontPoint()->index = millis() + (*this->timeQueue.frontPoint()).index;
+                    break;
+
+                case timeUnitMoveCameraUpDown:
+                    if (this->moveCamera(cameraUpDown, this->timeQueue.frontPoint()->index)) {
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
+
+                case timeUnitMoveCameraLeftRight:
+                    if (this->moveCamera(cameraLeftRight, this->timeQueue.frontPoint()->index)) {
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
+            }
+    }
+}camera;
+
 float deltaArmReachIndex(float mass){
     return mass;
 }
@@ -191,6 +251,13 @@ void changeMass(int armNum, float mass, int startSignal = -1, int finishSignal =
     arm[armNum].timeQueue.push(timeUnitChangeMass, mass / (float)100, startSignal, finishSignal);
 }
 
+void delayCamera(double delay, int startSignal = -1, int finishSignal = -1){
+    camera.timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+}
+
+void moveCamera(int direction, float angle, int startSignal = -1, int finishSignal = -1){
+    camera.timeQueue.push(direction + 1, angle, startSignal, finishSignal);
+}
 
 #endif
 

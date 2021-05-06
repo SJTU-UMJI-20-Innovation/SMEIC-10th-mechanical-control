@@ -3,12 +3,16 @@
 
 #define timeUnitBeingDelay -1
 #define timeUnitDelay 0
+
 #define timeUnitStepperMotorMove 1
 
 #define timeUnitReachArm 1
 #define timeUnitRotateServoTwo 2
 #define timeUnitRotateServoOne 3
 #define timeUnitChangeMass 4
+
+#define timeUnitMoveCameraUpDown 1
+#define timeUnitMoveCameraLeftRight 2
 
 #define timeUnitPiChange 1
 

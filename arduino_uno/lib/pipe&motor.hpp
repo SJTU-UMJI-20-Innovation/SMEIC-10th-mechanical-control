@@ -12,7 +12,7 @@ const int motorPin = 2;
 #define solidAnalogSpeed (int)175
 
 #define solidOnTime 3000
-#define solidOffTime 15000
+#define solidOffTime 1000
 
 struct _pipe{
     int id;

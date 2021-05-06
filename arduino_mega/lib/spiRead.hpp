@@ -36,9 +36,9 @@ float _thirteenBitsToFloat(uint16_t rawData);
 volatile void processOneByte() {
 
     if (spiResendFlag){
+        spiResendFlag = false;
         bufPos = 0;
         remainingBytes = 1;
-        spiResendFlag = false;
     }
 
     digitalWrite(piCommunicationPin, LOW);
@@ -101,6 +101,12 @@ uint8_t CRC8(byte* buf){
 
 void _processCmd(byte* buf) {
 //    Serial.println("in process cmd");
+//    Serial.println(buf[0]);
+//    Serial.println(buf[1]);
+//    Serial.println(buf[2]);
+//    Serial.println(buf[3]);
+//    Serial.println(buf[4]);
+//    Serial.println(buf[5]);
     if (latePrint){
         if (print_n == 0)
             print_time = millis() + 3000;
@@ -110,17 +116,18 @@ void _processCmd(byte* buf) {
 
     uint8_t CRC8Check = CRC8(buf);
     if (CRC8Check != 0){
-        digitalWrite(piCommunicationPin, HIGH);
         spiResendFlag = true;
+        digitalWrite(piCommunicationPin, HIGH);
         if (latePrint){
             print[print_n] = "Fail CRC check, callback: " + String(CRC8Check) + "\n\n";
             print_n++;
         }
-        Serial.println("CRC fail want to resend");
-        Serial.println(remainingBytes);
+//        Serial.println("CRC fail want to resend");
+//        Serial.println(remainingBytes);
+//        Serial.println(bufPos);
         return;
     }
-
+//    Serial.println("CRC Pass!!!!!!!!!!!!!!!!!!!!!!!!!!");
     if (latePrint){
         print[print_n] = "Pass CRC check\n";
         print_n++;
@@ -183,6 +190,11 @@ void _processCmd(byte* buf) {
         case 9: //changeMass 1bit reserved 2bit armNum 13bit data 8bit startSignal 8bit endSignal
             SPIDebug("changeMass ")
             changeMass((buf[1] & 0x60) >> 5, _thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
+            break;
+
+        case 11:
+            SPIDebug("moveCamera ")
+            moveCamera((buf[1] & 0x60) >> 5, _thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             break;
     }
 }

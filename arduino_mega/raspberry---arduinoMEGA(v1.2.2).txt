@@ -100,11 +100,22 @@ MEGA底层通讯: 以下任务会被添加到对应电机的任务队列尾端�
             mass -> 承重质量(单位: 克), 可为小数
             例: cgMs 1 200 -> 右机械臂称重质量调为200g
 
-中层通讯
+    舵机(摄像头):
 
+        dlCm/delayCamera [direction] [delay] ([startSignal] [endSignal]):
+            direction -> 0: up/down 1: left/right
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlCm 1 4.3 -> 摄像头左右移动延迟4.3秒
+
+        mvCm/moveCamera [direction] [angle] ([startSignal] [endSignal]):
+            direction -> 0: up/down 1: left/right
+            angle -> 当前direction转向的角度, 可为小数
+            例: mvCm 0 -45 -> 摄像头上下方位移动到-45度
+
+中层通讯
 左手拿试管
 cgSg 1
-mvMvBs 14.0 1 2
+mvMvBs 13.5 1 2
 rtRtBs 0 0.0 2 3
 lfLfBs 0 -1.7 3 4
 rtSvOne 0 103 4 5
@@ -115,17 +126,6 @@ cgMs 0 1 8 9
 mvAm 0 77.7 9 10
 lfLfBs 0 -7.0 10 11
 mvAm 0 90 11 12
-
-左手放试管
-cgSg 1
-mvMvBs 14.0 1 2
-rtRtBs 0 0.0 2 3
-lfLfBs 0 -7.0 3 4
-mvAm 0 77.45 4 5
-lfLfBs 0 0.0 5 6
-rtSvOne 0 103 6 7
-cgMs 0 0 7 8
-mvAm 0 90 8 9
 
 左手取液
 cgSg 1
@@ -139,7 +139,7 @@ mvAm 0 90.0 4 5
 
 右手拿试管
 cgSg 1
-mvMvBs -25.5 1 2
+mvMvBs -26.5 1 2
 rtRtBs 1 -0.0 2 3
 lfLfBs 1 -3.0 3 4
 rtSvOne 1 103 4 5
@@ -153,23 +153,13 @@ mvAm 1 90.0 11 12
 
 右手取液
 cgSg 1
-lfLfBs 1 -6 1 2
-mvMvBs -22.8 2 3
+lfLfBs 1 -7.5 1 2
+mvMvBs -23.6 2 3
 mvAm 1 81.5 3 4
 
 gtLq 2 3
 
 mvAm 1 90 4 5
-
-右手放试管
-cgSg 1
-mvMvBs -26.0 1 2
-lfLfBs 1 -8.0 2 3
-mvAm 1 77 3 4
-lfLfBs 1 -2.5 4 5
-rtSvOne 1 105 5 6
-cgMs 1 0 6 7
-mvAm 1 90 7 8
 
 转向试验台
 cgSg 1
@@ -178,17 +168,96 @@ rtRtBs 0 -180 2 3
 lfLfBs 1 -6 3 4
 rtRtBs 1 180 4 4 5
 
+倾倒
+cgSg 1
+rtRtBs 1 181 1 2
+lfLfBs 1 -20 2 3
+mvAm 1 86.8 3 4
+rtSvTwo 1 20 4 5
 
 转回药品区
 cgSg 1
-lfLfBs 0 -6 1 2
-rtRtBs 0 0 2 3
-lfLfBs 1 -6 3 4
-rtRtBs 1 0 4 4 5
+rtSvTwo 1 90 1 2
+mvAm 1 90 2 3
+lfLfBs 0 -6 3 4
+rtRtBs 0 0 4 5
+lfLfBs 1 -6 5 6
+rtRtBs 1 0 4 6 7
 
-倾倒
+右手放试管
 cgSg 1
-rtRtBs 1 183 1 2
-lfLfBs 1 -22 2 3
-mvAm 1 87 3 4
-rtSvTwo 1 90 4 5
+mvMvBs -26.5 1 2
+lfLfBs 1 -8.0 2 3
+mvAm 1 77 3 4
+lfLfBs 1 -2.5 4 5
+rtSvOne 1 105 5 6
+cgMs 1 0 6 7
+mvAm 1 90 7 8
+
+左手放试管
+cgSg 1
+mvMvBs 13.5 1 2
+rtRtBs 0 0.0 2 3
+lfLfBs 0 -7.0 3 4
+mvAm 0 77.45 4 5
+lfLfBs 0 0.0 5 6
+rtSvOne 0 103 6 7
+cgMs 0 0 7 8
+mvAm 0 90 8 9
+
+摄像头药品区
+mvCm 0 80
+mvCm 1 150
+
+摄像头操作区
+mvCm 0 80
+mvCm 1 48
+
+左手拿烧杯
+cgSg 1
+mvMvBs -1 1 2
+lfLfBs 1 0 2 3
+rtSvOne 1 105 3 4
+mvAm 1 80 4 5
+dlAm 1 3 5 6
+rtSvOne 1 88 6 7
+cgMs 1 2 7 8
+mvAm 1 81 8 9
+lfLfBs 1 -3 9 10
+dlAm 1 3 10 11
+mvAm 1 90 11 12
+
+左手取盐酸
+cgSg 1
+mvMvBs -3 1 2
+mvAm 1 85.6 2 3
+lfLfBs 1 -14 3 4
+
+gtLq 1 5
+
+cgMs 1 4
+mvAm 1 90 4 5
+lfLfBs 1 -6 5 6
+
+左手取大理石
+cgSg 1
+mvMvBs -12 1 2
+lfLfBs 1 -23 2 3
+
+lfLfBs 1 -6 3 4
+cgMs 1 3
+
+左手放烧杯
+cgSg 1
+mvMvBs -1 1 2
+lfLfBs 1 -3 2 3
+mvAm 1 81 3 4
+lfLfBs 1 0 4 5
+cgMs 1 2 5 6
+mvAm 1 80.5 6 7
+dlAm 1 3 7 8
+cgMs 1 0 8 9
+mvAm 1 80 9 10
+dlAm 1 3 10 11
+rtSvOne 1 103 11 12
+mvAm 1 90 12 13

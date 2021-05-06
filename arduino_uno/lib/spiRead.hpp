@@ -137,6 +137,12 @@ void _processCmd(byte* buf) {
             SPIDebug("getLiquid ")
             getLiquid((buf[1] & 0x60) >> 5, _thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             break;
+
+        case 12:
+            SPIDebug("getSolid ")
+            getSolid(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
+            break;
+
     }
 //        case 1: //stop
 //            stop();
