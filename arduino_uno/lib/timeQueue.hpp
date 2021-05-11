@@ -6,10 +6,11 @@
 #define timeUnitGetLiquid 1
 #define timeUnitGetSolid 2
 
+#define timeUnitChangeLiquid 1
 
 #define bufferStorageSize 20
 #define debugMode false
-#define latePrint true
+#define latePrint false
 int signal = 0;
 int lastAppliedSignal = 0;
 

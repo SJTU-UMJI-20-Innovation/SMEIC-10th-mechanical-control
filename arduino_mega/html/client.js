@@ -159,6 +159,18 @@ function checkSend(cmd, line){
                 return false;
             }
             break;
+        case "dtSvThree":
+            if (message[1] != "0" && message[1] != "1"){
+                outputArea.value += "Error in deltaServoThree on line " + line + ": invalid direction\n";
+                return false;
+            }
+            break;
+        case "cgBr":
+            if (message.length < 2){
+                outputArea.value += "Error in changeBurette on line " + line + ": wrong input number\n";
+                return false;
+            }
+            break;
         default:
             outputArea.value += ("Unknown Command on line " + line + ": " + message[0] + "\n");
             return false;

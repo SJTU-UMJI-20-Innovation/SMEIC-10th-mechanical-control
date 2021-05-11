@@ -121,6 +121,8 @@ void _processCmd(byte* buf) {
         digitalWrite(piCommunicationPin, HIGH);
         spiResendFlag = true;
         if (latePrint){
+            if (print_n == 0)
+                print_time = millis() + 3000;
             print[print_n] = "Fail CRC check, callback: " + String(CRC8Check) + "\n\n";
             print_n++;
         }
@@ -128,6 +130,8 @@ void _processCmd(byte* buf) {
     }
 
     if (latePrint){
+        if (print_n == 0)
+            print_time = millis() + 3000;
         print[print_n] = "Pass CRC check\n";
         print_n++;
     }
@@ -143,6 +147,10 @@ void _processCmd(byte* buf) {
             getSolid(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             break;
 
+        case 14:
+            SPIDebug("changeBurette")
+            changeBurette(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
+            break;
     }
 //        case 1: //stop
 //            stop();

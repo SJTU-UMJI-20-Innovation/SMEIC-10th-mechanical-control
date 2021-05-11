@@ -12,6 +12,7 @@ void setup() {
     initSPI();
     for (int i = 0; i < 4; ++i)
         pipe[i].init(i);
+    burette.init();
     motor.init();
     if (latePrint) {
         if (print_n == 0)
@@ -32,6 +33,8 @@ void loop() {
     for (int i = 0; i < 4; ++i)
         pipe[i].loopRun();
     motor.loopRun();
+    burette.loopRun();
+
     if (latePrint && print_n != 0 && print_time < millis()){
         int temp_n = print_n;
         print_n = 0;
@@ -51,4 +54,3 @@ void loop() {
         digitalWrite(piCommunicationPin, HIGH);
     }
 }
-  

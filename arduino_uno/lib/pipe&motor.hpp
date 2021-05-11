@@ -3,9 +3,9 @@
 
 #include "timeQueue.hpp"
 //                                    0      1      2      3
-const float pipeOpenPosition[4]    = {120,   130,   130,   150};
+const float pipeOpenPosition[4]    = {180,   130,   130,   150};
 const float pipeClosePosition[4]   = {0,     0,     0,     0};
-const int constPin[4]              = {3,     5,     6,     9};
+const int constPin[4]              = {8,     5,     6,     9};
 const int motorPin = 2;
 #define timeDivideVolume (float)1.0
 #define timeDivideGram (float)1.0
@@ -77,6 +77,54 @@ struct _pipe{
     }
 
 }pipe[4];
+
+const int liquidPin = 3;
+const float initialLiquidPos = 180;
+
+struct _burette{
+    _timeQueue timeQueue;
+    Servo servo;
+    void reset(){
+        servo.write(initialLiquidPos);
+    }
+
+    void init(){
+        pinMode(liquidPin, OUTPUT);
+        servo.attach(liquidPin);
+        reset();
+    }
+
+    bool changeLiquid(float angle){
+        servo.write(angle);
+        return true;
+    }
+
+    void loopRun(){
+        if (this->timeQueue.empty())
+            return;
+
+        if (signal >= this->timeQueue.frontPoint()->startSignal)
+            switch(this->timeQueue.frontPoint()->id){
+                case timeUnitBeingDelay:
+                    if (millis() >= this->timeQueue.frontPoint()->index) {
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
+                case timeUnitDelay:
+                    this->timeQueue.frontPoint()->id = timeUnitBeingDelay;
+                    this->timeQueue.frontPoint()->index = millis() + (*this->timeQueue.frontPoint()).index;
+                    break;
+
+                case timeUnitChangeLiquid:
+                    if (this->changeLiquid(this->timeQueue.frontPoint()->index)) {
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
+                    break;
+            }
+    }
+}burette;
 
 struct _motor{
     bool ifWait, changeType;
@@ -165,5 +213,9 @@ void getSolid(float gram, int startSignal = -1, int finishSignal = -1) {//armNum
 
 void delaySolid(float delay, int startSignal = -1, int finishSignal = -1){//delay单位:秒
     motor.timeQueue.push(timeUnitDelay, delay * 1e3, startSignal, finishSignal);
+}
+
+void changeBurette(float angle, int startSignal = -1, int finishSignal = -1){
+    burette.timeQueue.push(timeUnitChangeLiquid, angle, startSignal, finishSignal);
 }
 #endif

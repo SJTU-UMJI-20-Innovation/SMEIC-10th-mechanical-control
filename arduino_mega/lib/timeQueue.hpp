@@ -10,9 +10,12 @@
 #define timeUnitRotateServoTwo 2
 #define timeUnitRotateServoOne 3
 #define timeUnitChangeMass 4
+#define timeUnitDeltaServoThree 5
 
 #define timeUnitMoveCameraUpDown 1
 #define timeUnitMoveCameraLeftRight 2
+
+#define timeUnitChangeLiquid 1
 
 #define timeUnitPiChange 1
 

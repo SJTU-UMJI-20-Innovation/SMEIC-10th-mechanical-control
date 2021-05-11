@@ -9,6 +9,7 @@
 #ifdef ClionArduino
 #include <Servo/src/Servo.h>
 #else
+//#include <Servo_Hardware_PWM.h>
 #include <Servo.h>
 #endif
 
@@ -35,11 +36,14 @@ const float weightIndex[arm_n][eachArmServo_n] =       {{0.0,   0.0,   0.0,    0
 //                                                               越重    -a     -2a    -a                     +a     -2a    -a
 const float armReachIntercept[arm_n][eachArmServo_n] = {{0.0,   0.0,   17.5,   -90.0,  164.0}, {0.0,   0.0,   193.5, -90.0, 164.0}};
 
-const int cameraPin[2] = {13, 12};
+const int cameraPin[2] = {13, 12};//49 not used
 const float initialCameraPos[2] = {90, 90};
 
+const int liquidPin = 49;
+const float initialLiquidPos = 180;
+
 const float armSpeed  = 0.0625;
-const float servoTwoSpeed = 1.0;
+const float servoTwoSpeed = 0.1;
 const float grabSpeed = 0.1;
 
 
@@ -49,18 +53,19 @@ const float grabPosition = 90.0;
 struct _arm{
     int id;
     unsigned long nextMoveMills;
-    float currentArmPosition, currentServoTwoPosition, currentGrabPosition, mass;
+    float currentArmPosition, mass, currentPosition[5], deltaPosition[5];
     _timeQueue timeQueue;
     _arm() = default;
     Servo servo[eachArmServo_n];
     void reset(){
-        for (int i = 0; i < eachArmServo_n; ++i)
+        for (int i = 0; i < eachArmServo_n; ++i) {
             servo[i].write(initialPos[this->id][i]);
+            currentPosition[i] = initialPos[this->id][i];
+            deltaPosition[i] = 0;
+        }
         currentArmPosition = 90.0;
-        currentServoTwoPosition = 90.0;
-        currentGrabPosition = 90.0;
         nextMoveMills = 0;
-        mass = 0.0;
+        mass = 0;
     }
 
     void init(int id){
@@ -73,8 +78,13 @@ struct _arm{
     }
 
     bool reachArm(float toArmPosition) {//toArmPosition:90~30(90:the initial position,30:the furthest postion
-        if (abs(toArmPosition - this->currentArmPosition) < 0.1)
+        if (abs(toArmPosition - this->currentArmPosition) < 0.1) {
+            for (int i = 2; i < 5; ++i) {
+                this->servo[i].write((armReachIndex[this->id][i] + weightIndex[this->id][i] * mass) * this->currentArmPosition + armReachIntercept[this->id][i] + deltaPosition[i]);
+                currentPosition[i] = (armReachIndex[this->id][i] + weightIndex[this->id][i] * mass) * this->currentArmPosition + armReachIntercept[this->id][i] + deltaPosition[i];
+            }
             return true;
+        }
         if (millis() < this->nextMoveMills)
             return false;
 
@@ -84,30 +94,32 @@ struct _arm{
         else
             this->currentArmPosition += armSpeed;
 //        Serial.println(this->currentArmPosition);
-        for (int i = 2; i < 5; ++i)
-            this->servo[i].write((armReachIndex[this->id][i] + weightIndex[this->id][i] * mass) * this->currentArmPosition + armReachIntercept[this->id][i]);
+        for (int i = 2; i < 5; ++i) {
+            this->servo[i].write((armReachIndex[this->id][i] + weightIndex[this->id][i] * mass) * this->currentArmPosition + armReachIntercept[this->id][i] + deltaPosition[i]);
+            currentPosition[i] = (armReachIndex[this->id][i] + weightIndex[this->id][i] * mass) * this->currentArmPosition + armReachIntercept[this->id][i] + deltaPosition[i];
+        }
         return false;
     }
 
     bool rotateServoTwo(float toServoTwoPosition){
-        if (abs(toServoTwoPosition - this->currentServoTwoPosition) < servoTwoSpeed + 0.02)
+        if (abs(toServoTwoPosition - this->currentPosition[1] - this->deltaPosition[1]) < servoTwoSpeed + 0.02)
             return true;
         if (millis() < this->nextMoveMills)
             return false;
 
         this->nextMoveMills = millis() + servoMoveMills;
-        if (this->currentServoTwoPosition > toServoTwoPosition)
-            this->currentServoTwoPosition -= servoTwoSpeed;
+        if (this->currentPosition[1] + this->deltaPosition[1] > toServoTwoPosition)
+            this->currentPosition[1] -= servoTwoSpeed;
         else
-            this->currentServoTwoPosition += servoTwoSpeed;
-        servo[1].write(this->currentServoTwoPosition);
+            this->currentPosition[1] += servoTwoSpeed;
+        servo[1].write(this->currentPosition[1]);
     }
 
     bool rotateServoOne(float toServoOnePosition){
         toServoOnePosition = min((float)120.0, toServoOnePosition);
         toServoOnePosition = max((float)85.0, toServoOnePosition);
 
-        if (abs(toServoOnePosition - this->currentGrabPosition) < grabSpeed + 0.02){
+        if (abs(toServoOnePosition - this->currentPosition[0] - this->deltaPosition[0]) < grabSpeed + 0.02){
 //            Serial.println("rotateServoOne->true");
 //            Serial.println(toServoOnePosition);
 //            Serial.println(this->currentGrabPosition);
@@ -119,12 +131,20 @@ struct _arm{
             return false;
 
         this->nextMoveMills = millis() + servoMoveMills;
-        if (this->currentGrabPosition > toServoOnePosition)
-            this->currentGrabPosition -= grabSpeed;
+        if (this->currentPosition[0] + this->deltaPosition[0] > toServoOnePosition)
+            this->currentPosition[0] -= grabSpeed;
         else
-            this->currentGrabPosition += grabSpeed;
-        servo[0].write(this->currentGrabPosition);
+            this->currentPosition[0] += grabSpeed;
+        servo[0].write(this->currentPosition[0] + this->deltaPosition[0]);
         return false;
+    }
+
+    bool deltaServoThree(float newDelta){
+        double delta = newDelta - deltaPosition[2];
+        servo[2].write(this->currentPosition[2] + delta);
+        currentPosition[2] = this->currentPosition[2] + delta;
+        deltaPosition[2] = newDelta;
+        return true;
     }
 
     void loopRun(){
@@ -167,8 +187,16 @@ struct _arm{
 
                 case timeUnitChangeMass:
                     this->mass  = this->timeQueue.frontPoint()->index;
+                    reachArm(this->currentArmPosition);
                     signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
                     this->timeQueue.pop();
+                    break;
+
+                 case timeUnitDeltaServoThree:
+                    if (this->deltaServoThree(this->timeQueue.frontPoint()->index)){
+                        signal = max(signal, this->timeQueue.frontPoint()->finishSignal);
+                        this->timeQueue.pop();
+                    }
                     break;
         }
     }
@@ -249,6 +277,10 @@ void rotateServoOne(int armNum, float position, int startSignal = -1, int finish
 
 void changeMass(int armNum, float mass, int startSignal = -1, int finishSignal = -1){
     arm[armNum].timeQueue.push(timeUnitChangeMass, mass / (float)100, startSignal, finishSignal);
+}
+
+void deltaServoThree(int armNum, float delta, int startSignal = -1, int finishSignal = -1){
+    arm[armNum].timeQueue.push(timeUnitDeltaServoThree, delta, startSignal, finishSignal);
 }
 
 void delayCamera(double delay, int startSignal = -1, int finishSignal = -1){
