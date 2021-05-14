@@ -1,0 +1,352 @@
+leftHandGetTube
+!左手拿试管
+cgMs 0 0
+dtSvThree 0 0
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 12.5 1 2
+rtRtBs 0 0.0 2 3
+lfLfBs 0 -1.4 3 4
+rtSvOne 0 103 4 5
+mvAm 0 77.5 5 6
+dlAm 0 3 6 7
+rtSvOne 0 88 7 8
+cgMs 0 1 8 9
+dtSvThree 0 1 9 10
+lfLfBs 0 -7.0 10 11
+mvAm 0 90 11 12
+dtSvThree 0 0 12 13
+!
+cmd end
+!
+leftHandReachOutGetNaOH
+!左手伸出接NaOH
+cgSg 1
+mvMvBs 12.0 1 2
+lfLfBs 0 -6 2 3
+mvAm 0 82.0 3 4
+!
+cmd end
+!
+dropNaOH
+!接液口4接NaOH(对应左手)
+gtLq 3 3
+cmd end
+!
+leftHandFinishGetNaOH
+!左手接NaOH结束，收回
+mvAm 0 90.0 4 5
+!
+cmd end
+!
+rightHandGetTube
+!右手拿试管
+cgMs 1 0
+cgSg 1
+mvMvBs -26.5 1 2
+rtRtBs 1 -0.0 2 3
+lfLfBs 1 -4.5 3 4
+rtSvOne 1 103 4 5
+mvAm 1 77.3 5 6
+dlAm 1 3 6 7
+rtSvOne 1 85 7 8
+cgMs 1 1.0 8 9
+dtSvThree 1 -4 9 10
+dlAm 1 1 10 11	
+lfLfBs 1 -9.5 11 12
+mvAm 1 90.0 12 13
+dtSvThree 1 0 13 14
+!
+cmd end
+!
+rightHandReachOutGetCuSO4
+!右手伸出接CuSO4
+cgSg 1
+lfLfBs 1 -7.5 1 2
+mvMvBs -23.0 2 3
+mvAm 1 82 3 4
+!
+cmd end
+!
+dropCuSO4
+!接液口3接CuSO4(对应右手)
+gtLq 2 3
+!
+cmd end
+!
+rightHandFinishGetCuSO4
+!右手接CuSO4结束，收回
+mvAm 1 90 4 5
+!
+cmd end
+!
+turnToExperimentArea
+!左右手转到试验区
+cgSg 1
+mvMvBs 26 1 1
+lfLfBs 0 -6 1 2
+lfLfBs 1 -6 2 3
+rtRtBs 0 -180 3 4
+rtRtBs 1 180 4 5
+!
+cmd end
+!
+mixLiquid
+!右手左手倾倒液体到左手
+cgSg 1
+rtRtBs 1 184 1 2
+lfLfBs 1 -21.5 2 3
+mvAm 1 86.8 3 4
+rtSvTwo 1 20 4 5
+!
+cmd end
+!
+HDCameraBeginWatchTube
+!高清摄像机观察试管
+cgSg 1
+rtSvTwo 1 90 1 2
+cgMs 1 10
+mvAm 1 70 2 3
+rtRtBs 1 193 3 4
+lfLfBs 1 -8 4 5
+!
+cmd end
+!
+HDCameraEndWatchTube
+!高清摄像机观察试管结束
+lfLfBs 1 -20 5 6
+rtRtBs 1 180 6 7
+cgMs 1 1 7 8
+mvAm 1 90 8 9
+lfLfBs 1 -6 9 10
+!
+cmd end
+!
+turnToStorageArea
+!左右手转回药瓶区
+cgSg 1
+rtSvTwo 1 90 1 2
+mvAm 1 90 2 3
+lfLfBs 0 -6 3 4
+lfLfBs 1 -6 4 5
+rtRtBs 0 0 5 6
+rtRtBs 1 0 6 7
+!
+cmd end
+!
+leftHandReturnTube
+!左手试管放回试管架
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 12.0 1 2
+rtRtBs 0 1.0 2 3
+lfLfBs 0 -7.0 3 4
+mvAm 0 77.5 4 5
+lfLfBs 0 1.0 5 6
+rtSvOne 0 103 6 7
+cgMs 0 0 7 8
+mvAm 0 90 8 9
+!
+cmd end
+!
+rightHandReturnTube
+!右手试管放回试管架
+cgSg 1
+mvMvBs -26.5 1 2
+lfLfBs 1 -8.0 2 3
+mvAm 1 77 3 4
+lfLfBs 1 -2.5 4 5
+rtSvOne 1 105 5 6
+cgMs 1 0 6 7
+mvAm 1 90 7 8
+!
+cmd end
+!
+!实验1完成
+rightHandGetBeaker
+!右手拿烧杯
+cgMs 1 0
+dtSvThree 1 0
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -2.5 1 2
+lfLfBs 1 -0.5 2 3
+rtSvOne 1 105 3 4
+mvAm 1 80 4 5
+dlAm 1 3 5 6
+rtSvOne 1 85 6 7
+cgMs 1 3 7 8
+mvAm 1 81 8 9
+lfLfBs 1 -3 9 10
+dlAm 1 3 10 11
+mvAm 1 90 11 12
+!
+cmd end
+!
+rightHandReachOutGetH2O2
+!右手取盐酸
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -3 1 2
+mvAm 1 85.6 2 3
+lfLfBs 1 -14 3 4
+!
+cmd end
+!
+dropH2O2
+!取盐酸(对应右手)
+gtLq 1 5
+!
+cmd end
+!
+rightHandFinishGetH2O2
+!右手接HCl结束，收回
+mvAm 1 90 4 5
+lfLfBs 1 -6 5 6
+!
+cmd end
+!
+rightHandReachOutGetMnO2
+!右手取大理石
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -15 1 2
+cgMs 1 14 2 3
+dtSvThree 1 10 3 4
+lfLfBs 1 -15 4 5
+mvAm 1 88 5 6
+!
+cmd end
+!
+dropMnO2
+!取大理石
+gtSl 4
+!
+cmd end
+!
+rightHandFinishGetMnO2BeginWatch
+!右手结束取大理石，高清摄像头
+mvAm 1 90 6 7
+lfLfBs 1 -4 7 8
+dtSvThree 1 0 8 9
+cgMs 1 4 9 10
+rtRtBs 1 160 10 11
+dtSvThree 1 10 11 12
+mvAm 1 82 12 13
+!
+cmd end
+!
+rightHandReturnBeaker
+!右手放烧杯
+cgSg 1
+dtSvThree 1 0 1 2
+mvAm 1 90 2 3
+rtRtBs 1 0 3 4
+rtSvTwo 1 88 4 5
+mvMvBs -2.5 5 6
+lfLfBs 1 -3 6 7
+mvAm 1 81 7 8
+lfLfBs 1 0 8 9
+cgMs 1 2 9 10
+mvAm 1 80.5 10 11
+dlAm 1 3 11 12
+cgMs 1 0 12 13
+mvAm 1 80 13 14
+dlAm 1 3 14 15
+rtSvOne 1 103 15 16
+mvAm 1 90 16 17
+!
+cmd end
+!
+leftHandGetFlask
+!左手取锥形瓶
+cgMs 0 0
+dtSvThree 0 0
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 7.3 1 2
+rtRtBs 0 -179.5 2 3
+lfLfBs 0 2.0 3 4
+rtSvOne 0 103 4 5
+mvAm 0 86.92 4 5
+dlAm 0 3 5 6
+rtSvOne 0 86 6 8
+cgMs 0 6 8 9
+mvAm 0 85 9 10
+lfLfBs 0 -7.0 10 11
+rtRtBs 0 -177.5 11 12
+!
+cmd end
+!
+rightHandStartObserveTitration
+!右手观察滴定管
+cgSg 1
+rtRtBs 1 160 1 2
+mvAm 1 62 2 3
+cgMs 1 15 3 4
+dlAm 1 1 4 5
+cgMs 1 30 5 6
+dlAm 1 1 6 7
+dtSvThree 1 -15 7 8
+dlAm 1 1 8 9
+dtSvThree 1 -30 9 10
+lfLfBs 1 -50 10 11
+rtRtBs 1 190 11 12
+!
+cmd end
+!
+rightHandObservePipe
+!用户观察滴定管
+lfLfBs 1 -45
+!
+cmd end
+!
+rightHandObserveTitration
+!右手停止观察滴定
+cgSg 1
+rtRtBs 1 170 1 2
+cgMs 1 15 2 3
+dlAm 1 1 3 4
+cgMs 1 0 4 5
+dlAm 1 1 5 6
+dtSvThree 1 -15 6 7
+dlAm 1 1 7 8
+dtSvThree 1 0 8 9
+dlAm 1 1 9 10
+mvAm 1 90 10 11
+lfLfBs 1 -6 11 12
+!
+cmd end
+!
+shake
+!摇晃
+rtSvTwo 0 99
+rtSvTwo 0 89
+rtSvTwo 0 99
+rtSvTwo 0 89
+rtSvTwo 0 94
+!
+cmd end
+!
+rotatePipeValve
+!旋转滴定管阀门(0 -> 全开, 180 -> 闭合)
+cgBr 0
+!
+cmd end
+!
+leftHandReturnFlask
+!左手放锥形瓶
+cgSg 1
+rtSvTwo 0 94 1 1
+lfLfBs 0 1.0 1 2
+rtRtBs 0 -179.5 2 3
+cgMs 0 0 3 4
+dtSvThree 0 0 4 5
+mvAm 0 88 5 6
+dlAm 0 3 6 7
+rtSvOne 0 103 7 8
+mvAm 0 90 8 9
+!
+cmd end
+!
+file end

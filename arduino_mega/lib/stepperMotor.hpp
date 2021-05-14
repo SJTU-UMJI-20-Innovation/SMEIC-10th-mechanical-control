@@ -23,7 +23,7 @@
 const int constPul[] =     {28,  44,  33,  47,  34,  36};
 const int constDir[] =     {14,  17,  20,  23,  41,  5};
 //const int intervalTime[] = {250, 250, 240, 240, 150, 150};
-const int intervalTime[] = {250, 250, 240, 240, 50, 50};
+const int intervalTime[] = {180, 180, 180, 180, 40, 40};
 
 struct _stepperMotor{
     int id, pul, dir, current_dir;//current_dir: 0->无方向, counter: 计数器
@@ -48,7 +48,7 @@ struct _stepperMotor{
     }
 
     bool rotate(float to_angle){//正：逆时针，负：顺时针
-        if (abs(to_angle - this->current_position) < 1.0){
+        if (abs(to_angle - this->current_position) < 0.3){
             digitalWrite(this->pul, 0);
             digitalWrite(this->dir, 0);
             this->counter = 1;

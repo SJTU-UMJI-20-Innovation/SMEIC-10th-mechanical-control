@@ -26,18 +26,18 @@ function keyCheck(pressKey){
                 }
                 else
                     if (keyChar == "Q" || keyChar == "q"){
-                        burettePosition += 5;
+                        burettePosition += 1;
                     }
                     else
                         if (keyChar == "E" || keyChar == "e"){
-                            burettePosition -= 5;
+                            burettePosition -= 1;
                         }
     upDownPosition = Math.max(upDownPosition, 50);
     upDownPosition = Math.min(upDownPosition, 180);
     leftRightPosition = Math.max(leftRightPosition, 0);
     leftRightPosition = Math.min(leftRightPosition, 180);
-    burettePosition = Math.max(burettePosition, 5);
-    burettePosition = Math.min(burettePosition, 175);
+    burettePosition = Math.max(burettePosition, 0);
+    burettePosition = Math.min(burettePosition, 180);
     var buretteCmd = "cgBr " + String(burettePosition);
     var upDownCmd = "mvCm 0 " + String(upDownPosition);
     var leftRightCmd = "mvCm 1 " + String(leftRightPosition);

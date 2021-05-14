@@ -35,7 +35,6 @@ void setup(){
     for (int i = 0; i < arm_n; ++i)
         arm[i].init(i);
     camera.init();
-    liquid.init();
 //    delayArm(0, 5.0);
 //    moveArm(0, 85);
 //    delayArm(0, 5.0);
@@ -91,7 +90,6 @@ void loop(){
     for (int i = 0; i < arm_n; ++i)
         arm[i].loopRun();
     camera.loopRun();
-    liquid.loopRun();
     if (spiSendingFlag && spiStartTime + 1000 < micros()){
         if (latePrint){
             if (print_n == 0)

@@ -1,0 +1,425 @@
+更新于2021/5/11/17:36
+更新:
+不再以#分隔，以空格' '分隔，结束符不再需要
+删除指令bf, reset, changeLastSignal
+
+常量:
+#define armLeft 0
+#define armRight 1
+
+规范:
+/两侧表示两侧指令都支持
+()内表示非必须参数, 有关startSignal与endSignal详细信息还是来问下魏奕晨吧
+[]内表示参数, 普遍的有:
+    arduino代码中有个全局变量signal, lastAppliedSignal
+    startSignal -> 该条指令只会在signal > startSignal时才开始执行
+    endSignal -> 该条指令在完成后，会将signal变为max(signal, endSignal)
+
+每一部分都以空格' '以区分, 结束不需要额外空格
+
+缩写表:
+bf -> buffer
+sg -> signal
+dl -> delay
+rt -> rotation/rotate
+bs -> base
+lf -> lift
+mv -> move
+am -> arm
+sv -> servo
+cg -> change
+ms -> mass
+
+所有signal目前设定为1~1024整数
+
+特殊:
+    cgSg/changeSignal [signalNumber]:
+        signalNumber: 将signal变为signalNumber
+        例: cgSg 0 -> 将signal变为0
+
+    stop
+        紧急停止
+        ！尚未实现
+
+MEGA底层通讯: 以下任务会被添加到对应电机的任务队列尾端。
+
+    步进电机：
+
+        dlRtBs/delayRotationBase [armNum] [delay] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlRtBs 0 12.1 -> 左机械臂旋转底座等待12.1秒
+
+        rtRtBs/rotateRotationBase [armNum] [angle] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            angle -> 角度(单位: 度) 负: 逆时针, 正: 顺时针, 可为小数
+            例: rtRtBs 1 180.3 -> 右机械臂旋转底座顺时针旋转180.3度
+
+        dlLfBs/delayLiftBase [armNum] [delay] ([startSignal] [endSignal]);
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlLfBs 0 12.3 -> 左机械臂升降底座等待12.3秒
+
+        lfLfBs/liftLiftBase [armNum] [height] ([startSignal] [endSignal] ):
+            armNum -> armLeft / armRight
+            height -> 高度(单位: 厘米) 负: 升高, 正: 降低, 可为小数
+            例: lfLfBs 1 -15.3 -> 右机械臂升降底座升高15.3厘米
+
+        dlMvBs/delayMovingBase [delay] ([startSignal] [endSignal]):
+            delay -> 等待秒数(单位: 秒), 可为小数, 0~100实数, 精确到小数点后1位
+            例: dlMvBs 4.4 -> 机械臂移动底座等待4.4秒
+
+        mvMvBs/moveMovingBase [position] ([startSignal] [endSignal]):
+            position -> 位置(单位: 厘米), 负: , 正: ,可为小数
+            例: mvMvBs 2.4 -> 机械臂移动底座移动2.4厘米
+
+    舵机(机械臂):
+
+        dlAm/dlMvAm/delayMoveArm [armNum] [delay] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlAm 1 4.2 -> 右机械臂等待4.2秒
+
+        mvAm/mvMvAm/moveArm [armNum] [angle] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            angle -> 机械臂张角(单位: 度), 90: 张角最小, 伸出距离最近, 60: 张角最大, 伸出距离最远, 可为小数
+            例: mvAm 0 83.4 -> 左机械臂移动到83.4度
+
+        rtSvTwo/rotateServoTwo [armNum] [angle] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            angle -> 机械手转动角度(单位: 度), 90: 初始位置, 负: ,正: ,可为小数
+            例: rtSvTwo 1 75.3 -> 右机械手转动到75.3度
+
+        rtSvOne/rotateServoOne [armNum] [angle] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            angle -> 机械爪闭合角度(单位: 度), 90: 初始位置, 105: 张开位置, 可为小数
+            例: rtSvOne 0 105 -> 左机械臂机械爪张开到105度
+
+        cgMs/changeMass [armNum] [mass] ([startSignal] [endSignal]):
+            armNum -> armLeft / armRight
+            mass -> 承重质量(单位: 克), 可为小数
+            例: cgMs 1 200 -> 右机械臂称重质量调为200g
+
+    舵机(摄像头):
+
+        dlCm/delayCamera [direction] [delay] ([startSignal] [endSignal]):
+            direction -> 0: up/down 1: left/right
+            delay -> 等待秒数(单位: 秒), 可为小数
+            例: dlCm 1 4.3 -> 摄像头左右移动延迟4.3秒
+
+        mvCm/moveCamera [direction] [angle] ([startSignal] [endSignal]):
+            direction -> 0: up/down 1: left/right
+            angle -> 当前direction转向的角度, 可为小数
+            例: mvCm 0 -45 -> 摄像头上下方位移动到-45度
+
+
+//不要用！！！！！！！！！！！
+左手取锥形瓶
+cgSg 1
+rtSvTwo 0 94 1 1
+cgMs 1 0 1 1
+dtSvThree 1 0 1 1
+mvMvBs 18.5 1 2
+rtRtBs 0 0.0 2 3
+lfLfBs 1 -8.7 3 4
+rtSvOne 1 103 4 5
+mvAm 1 79 5 6
+dlAm 1 3 6 7
+rtSvOne 1 88 7 8
+cgMs 1 6.0 8 9
+mvAm 1 80 9 10
+dlAm 1 3 10 11
+lfLfBs 1 -9.5 11 12
+mvAm 1 90 12 13
+
+
+左手转
+
+
+左手放锥形瓶
+cgSg 1
+rtSvTwo 0 94 1 1
+cgMs 1 4.5 1 2
+lfLfBs 1 -9.5 2 3
+mvAm 1 78.5 3 4
+lfLfBs 1 -5.0 4 5
+cgMs 1 2 5 6
+mvAm 1 79.0 6 7
+dlAm 1 3 7 8
+rtSvOne 1 103 8 9
+cgMs 1 0 9 10
+mvAm 1 90 11 12
+//不要用！！！！！！！！！！！！！！
+
+
+中层通讯
+
+左手拿试管
+cgMs 0 0
+dtSvThree 0 0
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 12.0 1 2
+rtRtBs 0 0.0 2 3
+lfLfBs 0 -1.3 3 4
+rtSvOne 0 103 4 5
+mvAm 0 77.5 5 6
+dlAm 0 3 6 7
+rtSvOne 0 88 7 8
+cgMs 0 1 8 9
+dtSvThree 0 1 9 10
+lfLfBs 0 -7.0 10 11
+mvAm 0 90 11 12
+dtSvThree 0 0 12 13
+
+20s
+
+左手伸出接液体
+cgSg 1
+mvMvBs 11.0 1 2
+lfLfBs 0 -6 2 3
+mvAm 0 81.5 3 4
+
+5s
+
+接液口4接液(对应左手)
+gtLq 3 3
+
+3s
+
+左手接液结束，收回
+mvAm 0 90.0 4 5
+
+2s
+
+右手拿试管
+cgMs 1 0
+cgSg 1
+mvMvBs -25.5 1 2
+rtRtBs 1 -0.0 2 3
+lfLfBs 1 -4.0 3 4
+rtSvOne 1 103 4 5
+mvAm 1 77.3 5 6
+dlAm 1 3 6 7
+rtSvOne 1 88 7 8
+cgMs 1 1.0 8 9
+dtSvThree 1 -4 9 10
+dlAm 1 1 10 11
+lfLfBs 1 -9.5 11 12
+mvAm 1 90.0 12 13
+dtSvThree 1 0 13 14
+
+35s
+
+右手伸出接液体
+cgSg 1
+lfLfBs 1 -7.5 1 2
+mvMvBs -23.6 2 3
+mvAm 1 81.5 3 4
+
+6s
+
+接液口3接液(对应右手)
+gtLq 2 3
+
+3s
+
+右手接液结束，收回
+mvAm 1 90 4 5
+
+2s
+
+左右手转到试验区
+cgSg 1
+mvMvBs 26 1 1
+lfLfBs 0 -6 1 2
+lfLfBs 1 -6 1 2
+rtRtBs 0 -180 2 3
+rtRtBs 1 180 2 3
+
+35s
+
+右手左手倾倒液体到左手
+cgSg 1
+rtRtBs 1 182.5 1 2
+lfLfBs 1 -21.5 2 3
+mvAm 1 86.8 3 4
+rtSvTwo 1 20 4 5
+
+15s
+
+高清摄像机观察
+cgSg 1
+rtSvTwo 1 90 1 2
+cgMs 1 10
+mvAm 1 70 2 3
+rtRtBs 1 193 3 4
+lfLfBs 1 -8 4 5
+
+15s
+
+高清摄像机观察结束
+lfLfBs 1 -20 5 6
+rtRtBs 1 180 6 7
+cgMs 1 1 7 8
+mvAm 1 90 8 9
+lfLfBs 1 -6 9 10
+
+22s
+
+左右手转回药瓶区
+cgSg 1
+rtSvTwo 1 90 1 2
+mvAm 1 90 2 3
+lfLfBs 0 -6 3 4
+lfLfBs 1 -6 3 4
+rtRtBs 0 0 4 5
+rtRtBs 1 0 4 5
+
+12s
+
+左手试管放回试管架
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 12.0 1 2
+rtRtBs 0 1.0 2 3
+lfLfBs 0 -7.0 3 4
+mvAm 0 77.5 4 5
+lfLfBs 0 1.0 5 6
+rtSvOne 0 103 6 7
+cgMs 0 0 7 8
+mvAm 0 90 8 9
+
+18s
+
+右手试管放回试管架
+cgSg 1
+mvMvBs -25.5 1 2
+lfLfBs 1 -8.0 2 3
+mvAm 1 77 3 4
+lfLfBs 1 -2.5 4 5
+rtSvOne 1 105 5 6
+cgMs 1 0 6 7
+mvAm 1 90 7 8
+
+28s
+
+//实验1完成
+
+摄像头药品区
+mvCm 0 80
+mvCm 1 150
+
+摄像头操作区
+mvCm 0 80
+mvCm 1 48
+
+右手拿烧杯
+cgMs 1 0
+dtSvThree 1 0
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -2 1 2
+lfLfBs 1 -0.5 2 3
+rtSvOne 1 105 3 4
+mvAm 1 80 4 5
+dlAm 1 3 5 6
+rtSvOne 1 88 6 7
+cgMs 1 3 7 8
+mvAm 1 81 8 9
+lfLfBs 1 -3 9 10
+dlAm 1 3 10 11
+mvAm 1 90 11 12
+
+右手取盐酸
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -3 1 2
+mvAm 1 85.6 2 3
+lfLfBs 1 -14 3 4
+
+gtLq 1 5
+
+cgMs 1 4
+mvAm 1 90 4 5
+lfLfBs 1 -6 5 6
+
+右手取大理石
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -12 1 2
+dtSvThree 1 -15 2 3
+lfLfBs 1 -15 3 4
+
+gtSl 4
+
+lfLfBs 1 -4 4 5
+dtSvThree 1 0 5 6
+cgMs 1 3
+
+右手放烧杯
+cgSg 1
+rtSvTwo 1 88 1 1
+mvMvBs -1 1 2
+lfLfBs 1 -3 2 3
+mvAm 1 81 3 4
+lfLfBs 1 0 4 5
+cgMs 1 2 5 6
+mvAm 1 80.5 6 7
+dlAm 1 3 7 8
+cgMs 1 0 8 9
+mvAm 1 80 9 10
+dlAm 1 3 10 11
+rtSvOne 1 103 11 12
+mvAm 1 90 12 13
+
+左手取锥形瓶
+cgMs 0 0
+dtSvThree 0 0
+cgSg 1
+rtSvTwo 0 94 1 1
+mvMvBs 5.3 1 2
+rtRtBs 0 -179.5 2 3
+lfLfBs 0 2.0 3 4
+rtSvOne 0 103 4 5
+mvAm 0 86.92 4 5
+dlAm 0 3 5 6
+rtSvOne 0 86 6 8
+cgMs 0 6 8 9
+mvAm 0 85 9 10
+lfLfBs 0 -7.0 10 11
+rtRtBs 0 -177.5 11 12
+
+左手放锥形瓶
+cgSg 1
+rtSvTwo 0 94 1 1
+lfLfBs 0 1.0 1 2
+rtRtBs 0 -180.5 2 3
+cgMs 0 0 3 4
+dtSvThree 0 0 4 5
+mvAm 0 88 5 6
+dlAm 0 3 6 7
+rtSvOne 0 103 7 8
+mvAm 0 90 8 9
+
+摇晃
+rtSvTwo 0 99
+rtSvTwo 0 89
+rtSvTwo 0 99
+rtSvTwo 0 89
+rtSvTwo 0 94
+
+右手观察刻度
+
+右手观察锥形瓶
+
+归位
+rtRtBs 0 0
+rtRtBs 1 0
+lfLfBs 0 0
+lfLfBs 1 0
+mvMvBs 0
+
+rt 180 -> 6s
+lf 30 -> 18s
+mv 20 -> 10s

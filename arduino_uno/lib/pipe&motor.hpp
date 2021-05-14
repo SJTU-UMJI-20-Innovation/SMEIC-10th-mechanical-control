@@ -3,7 +3,8 @@
 
 #include "timeQueue.hpp"
 //                                    0      1      2      3
-const float pipeOpenPosition[4]    = {180,   130,   130,   150};
+const float pipeOpenPosition[4]    = {180,   90,   90,   90};
+//                                                       ok
 const float pipeClosePosition[4]   = {0,     0,     0,     0};
 const int constPin[4]              = {8,     5,     6,     9};
 const int motorPin = 2;

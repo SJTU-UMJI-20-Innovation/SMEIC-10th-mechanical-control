@@ -21,7 +21,7 @@ void setup() {
         print_n++;
     }
 //    getSolid(10);
-
+    getLiquid(3, 3);
     Serial.println("finish setup");
 }
 

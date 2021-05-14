@@ -43,7 +43,7 @@ const int liquidPin = 49;
 const float initialLiquidPos = 180;
 
 const float armSpeed  = 0.0625;
-const float servoTwoSpeed = 0.1;
+const float servoTwoSpeed = 0.3;
 const float grabSpeed = 0.1;
 
 

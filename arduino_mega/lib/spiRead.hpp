@@ -202,10 +202,10 @@ void _processCmd(byte* buf) {
             deltaServoThree((buf[1] & 0x60) >> 5, _thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
             break;
 
-        case 14:
-            SPIDebug("changeLiquid")
-            changeLiquid(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
-            break;
+//        case 14:
+//            SPIDebug("changeLiquid")
+//            changeLiquid(_thirteenBitsToFloat(((buf[1] & 0x1F) << 8) + buf[2]), buf[3], buf[4]);
+//            break;
     }
 }
 
